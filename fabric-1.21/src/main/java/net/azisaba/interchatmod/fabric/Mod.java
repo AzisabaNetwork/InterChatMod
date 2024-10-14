@@ -8,9 +8,12 @@ import net.azisaba.interchatmod.common.model.Guild;
 import net.azisaba.interchatmod.common.model.GuildMember;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.server.integrated.IntegratedServer;
+import net.minecraft.text.Text;
+import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +63,44 @@ public class Mod implements ModInitializer {
                 }
             }
         }, 1000 * 30, 1000 * 30);
+
+        ClientSendMessageEvents.ALLOW_CHAT.register((message) -> {
+            if (!Mod.CONFIG.chatWithoutCommand()) {
+                return true;
+            }
+            if (message.startsWith("!")) {
+                return message.length() != 1;
+            }
+            try {
+                Mod.client.sendMessageToGuild(null, message);
+            } catch (WebsocketNotConnectedException e) {
+                assert MinecraftClient.getInstance().player != null;
+                MinecraftClient.getInstance().player.sendMessage(Text.literal("ギルドチャットに接続されていません。"));
+                Mod.reconnect();
+            }
+            return false;
+        });
+
+        ClientSendMessageEvents.MODIFY_CHAT.register((message) -> {
+            if (!Mod.CONFIG.chatWithoutCommand()) {
+                return message;
+            }
+            if (message.startsWith("!")) {
+                return message.substring(1);
+            }
+            return message;
+        });
+
+        Mod.TIMER.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    Mod.trySwitch();
+                } catch (Exception e) {
+                    Mod.LOGGER.error("Failed to switch", e);
+                }
+            }
+        }, 2000, 2000);
 
         reconnect();
     }
