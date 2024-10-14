@@ -1,0 +1,12 @@
+{
+	"required": true,
+	"package": "net.azisaba.interchatmod.fabric.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [
+        "MixinClientPlayNetworkHandler",
+		"MixinMinecraftClient"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}

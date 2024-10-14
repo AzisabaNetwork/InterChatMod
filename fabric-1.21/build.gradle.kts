@@ -2,12 +2,12 @@ plugins {
     id("fabric-loom") version "1.8-SNAPSHOT"
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(8))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
-val minecraftVersion = "1.16.5"
-val yarnMappings = "1.16.5+build.10"
-val loaderVersion = "0.14.24"
-val fabricVersion = "0.42.0+1.16"
+val minecraftVersion = "1.21.1"
+val yarnMappings = "1.21.1+build.3"
+val loaderVersion = "0.16.7"
+val fabricVersion = "0.105.0+1.21.1"
 val archivesBaseName = "InterChatMod-${project.name}"
 val adventureVersion by project.properties
 
@@ -17,7 +17,7 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
-    maven { url = uri("https://maven.terraformersmc.com/releases/") }
+    maven { url = uri("https://maven.wispforest.io") }
 }
 
 dependencies {
@@ -29,7 +29,8 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
 
-    modImplementation("com.terraformersmc:modmenu:1.16.23")
+    modImplementation("io.wispforest:owo-lib:0.12.15+1.21")
+    annotationProcessor("io.wispforest:owo-lib:0.12.15+1.21")
 
     // Uncomment the following line to enable the deprecated Fabric API modules.
     // These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
@@ -45,8 +46,6 @@ dependencies {
     include("net.kyori:adventure-text-serializer-json:$adventureVersion")
     include("net.kyori:adventure-text-serializer-gson:$adventureVersion")
     include("org.java-websocket:Java-WebSocket:1.5.4")
-    include("org.slf4j:slf4j-api:2.0.6")
-    include("org.slf4j:slf4j-nop:2.0.6")
 }
 
 tasks {

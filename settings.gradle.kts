@@ -12,6 +12,12 @@ pluginManagement {
         maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
     }
 }
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
+}
+
+include("fabric-1.21")
 include("blueberry-1.20")
 include("fabric-1.20")
 include("common")

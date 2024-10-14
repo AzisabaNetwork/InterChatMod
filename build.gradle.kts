@@ -1,14 +1,14 @@
 plugins {
     java
     `java-library`
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("com.gradleup.shadow") version "8.3.3"
 }
 
 allprojects {
     apply {
         plugin("java")
         plugin("java-library")
-        plugin("com.github.johnrengelman.shadow")
+        plugin("com.gradleup.shadow")
     }
 
     group = "net.azisaba.interchatmod"

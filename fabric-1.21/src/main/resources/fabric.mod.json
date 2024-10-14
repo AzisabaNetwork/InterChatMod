@@ -1,0 +1,32 @@
+{
+	"schemaVersion": 1,
+	"id": "interchatmod",
+	"version": "${version}",
+	"name": "InterChat",
+	"description": "Guild chat for client",
+	"authors": [
+		"Azisaba Network"
+	],
+	"contact": {
+		"homepage": "https://azisaba.net/",
+		"sources": "https://github.com/AzisabaNetwork/InterChatMod"
+	},
+	"license": "MIT",
+	"icon": "assets/interchatmod/icon.png",
+	"environment": "client",
+	"entrypoints": {
+		"main": [
+			"net.azisaba.interchatmod.fabric.Mod"
+		]
+	},
+	"mixins": [
+		"interchatmod.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.16.2",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*",
+		"owo": "*"
+	}
+}

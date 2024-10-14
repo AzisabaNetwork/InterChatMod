@@ -15,7 +15,7 @@ java {
 }
 
 blueberry {
-    minecraftVersion.set("1.20.1")
+    minecraftVersion.set("1.20.2")
     apiVersion.set("2.0.0-SNAPSHOT")
 }
 
