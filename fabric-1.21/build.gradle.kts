@@ -4,10 +4,10 @@ plugins {
 
 java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
-val minecraftVersion = "1.21.1"
-val yarnMappings = "1.21.1+build.3"
+val minecraftVersion = "1.21.3"
+val yarnMappings = "1.21.3+build.2"
 val loaderVersion = "0.16.7"
-val fabricVersion = "0.105.0+1.21.1"
+val fabricVersion = "0.106.1+1.21.3"
 val archivesBaseName = "InterChatMod-${project.name}"
 val adventureVersion by project.properties
 

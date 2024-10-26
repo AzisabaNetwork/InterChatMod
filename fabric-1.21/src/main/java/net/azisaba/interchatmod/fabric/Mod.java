@@ -23,7 +23,7 @@ import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -75,7 +75,7 @@ public class Mod implements ModInitializer {
                 Mod.client.sendMessageToGuild(null, message);
             } catch (WebsocketNotConnectedException e) {
                 assert MinecraftClient.getInstance().player != null;
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("ギルドチャットに接続されていません。"));
+                MinecraftClient.getInstance().player.sendMessage(Text.literal("ギルドチャットに接続されていません。"), false);
                 Mod.reconnect();
             }
             return false;
@@ -105,9 +105,9 @@ public class Mod implements ModInitializer {
         reconnect();
     }
 
-    private static String makeRequest(String path) throws IOException {
+    private static String makeRequest(String path) throws IOException, URISyntaxException {
         String url = "https://api-ktor.azisaba.net/" + path;
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + CONFIG.apiKey());
         return new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     }

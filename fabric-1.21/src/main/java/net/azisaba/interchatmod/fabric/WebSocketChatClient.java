@@ -68,7 +68,7 @@ public class WebSocketChatClient extends AbstractWebSocketChatClient {
         if (Mod.CONFIG.hideEverything()) return;
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
-        player.sendMessage(text);
+        player.sendMessage(text, false);
     }
 
     @Override
