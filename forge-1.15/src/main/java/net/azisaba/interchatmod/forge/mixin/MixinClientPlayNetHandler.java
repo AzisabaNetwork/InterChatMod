@@ -17,6 +17,7 @@ public class MixinClientPlayNetHandler {
 
     @Inject(method = "handleCommandList", at = @At("TAIL"))
     public void handleCommandList(SCommandListPacket packetIn, CallbackInfo ci) {
+        this.commandDispatcher.getRoot().addChild(Commands.builderGTell().build());
         this.commandDispatcher.getRoot().addChild(Commands.builderGS().build());
         this.commandDispatcher.getRoot().addChild(Commands.builderG().build());
         this.commandDispatcher.getRoot().addChild(Commands.builderReconnectInterChat().build());

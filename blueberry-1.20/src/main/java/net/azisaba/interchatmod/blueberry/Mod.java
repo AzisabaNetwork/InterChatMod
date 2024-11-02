@@ -120,6 +120,11 @@ public class Mod extends BlueberryMod {
                     JsonArray membersArray = gson.fromJson(makeRequest("interchat/guilds/" + guild.id() + "/members"), JsonArray.class);
                     guildMembers.put(guild.id(), GuildMember.getGuildMembersFromArray(membersArray));
                 }
+                for (Set<GuildMember> memberSet : guildMembers.values()) {
+                    for (GuildMember member : memberSet) {
+                        GuildCommand.KNOWN_PLAYERS.add(member.name());
+                    }
+                }
             } catch (Exception e) {
                 getLogger().warn("Failed to fetch guild list", e);
             }

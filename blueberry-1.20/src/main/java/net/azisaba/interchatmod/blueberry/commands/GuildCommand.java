@@ -15,7 +15,9 @@ import net.minecraft.network.chat.HoverEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,6 +27,7 @@ import static net.minecraft.commands.Commands.literal;
 
 @SuppressWarnings("SameReturnValue")
 public class GuildCommand implements ClientCommandHandler {
+    public static final Set<String> KNOWN_PLAYERS = Collections.synchronizedSet(new HashSet<>());
     private final Mod mod;
 
     public GuildCommand(Mod mod) {
@@ -117,6 +120,34 @@ public class GuildCommand implements ClientCommandHandler {
                                 )
                         )
                         .then(literal("info").executes(ctx -> executeInfo(ctx.getSource())))
+                        .then(literal("block")
+                                .then(argument("player", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            mod.client.block(StringArgumentType.getString(ctx, "player"));
+                                            return 0;
+                                        })
+                                )
+                        )
+                        .then(literal("unblock")
+                                .then(argument("player", StringArgumentType.word())
+                                        .executes(ctx -> {
+                                            mod.client.unblock(StringArgumentType.getString(ctx, "player"));
+                                            return 0;
+                                        })
+                                )
+                        )
+                        .then(literal("tell")
+                                .then(argument("player", StringArgumentType.word())
+                                        .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(KNOWN_PLAYERS.stream(), builder))
+                                        .then(argument("message", StringArgumentType.greedyString())
+                                                .executes(ctx -> {
+                                                    mod.client.tell(StringArgumentType.getString(ctx, "player"), StringArgumentType.getString(ctx, "message"));
+                                                    KNOWN_PLAYERS.add(StringArgumentType.getString(ctx, "player"));
+                                                    return 0;
+                                                })
+                                        )
+                                )
+                        )
         );
     }
 

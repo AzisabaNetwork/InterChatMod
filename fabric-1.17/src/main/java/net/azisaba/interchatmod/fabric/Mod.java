@@ -36,6 +36,7 @@ public class Mod implements ModInitializer, ModMenuApi {
 
     @Override
     public void onInitialize() {
+        ClientCommandManager.DISPATCHER.register(Commands.builderGTell());
         ClientCommandManager.DISPATCHER.register(Commands.builderGS());
         ClientCommandManager.DISPATCHER.register(Commands.builderG());
         ClientCommandManager.DISPATCHER.register(Commands.builderReconnectInterChat());
@@ -55,6 +56,11 @@ public class Mod implements ModInitializer, ModMenuApi {
                     for (Guild guild : localGuilds) {
                         JsonArray membersArray = gson.fromJson(makeRequest("interchat/guilds/" + guild.id() + "/members"), JsonArray.class);
                         guildMembers.put(guild.id(), GuildMember.getGuildMembersFromArray(membersArray));
+                    }
+                    for (Set<GuildMember> memberSet : guildMembers.values()) {
+                        for (GuildMember member : memberSet) {
+                            Commands.KNOWN_PLAYERS.add(member.name());
+                        }
                     }
                 } catch (Exception e) {
                     LOGGER.warn("Failed to fetch guild list", e);

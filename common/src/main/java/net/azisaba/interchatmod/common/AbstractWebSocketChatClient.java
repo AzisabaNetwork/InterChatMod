@@ -161,6 +161,25 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
         send(gson.toJson(obj));
     }
 
+    public void block(@NotNull String player) {
+        JsonObject obj = createPacket("block");
+        obj.addProperty("player", player);
+        send(gson.toJson(obj));
+    }
+
+    public void unblock(@NotNull String player) {
+        JsonObject obj = createPacket("unblock");
+        obj.addProperty("player", player);
+        send(gson.toJson(obj));
+    }
+
+    public void tell(@NotNull String player, @NotNull String message) {
+        JsonObject obj = createPacket("tell");
+        obj.addProperty("player", player);
+        obj.addProperty("message", message);
+        send(gson.toJson(obj));
+    }
+
     public void toggleInvites() {
         send(gson.toJson(createPacket("toggle_invites")));
     }

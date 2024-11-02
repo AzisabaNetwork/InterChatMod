@@ -54,6 +54,11 @@ public class Mod {
                         JsonArray membersArray = gson.fromJson(makeRequest("interchat/guilds/" + guild.id() + "/members"), JsonArray.class);
                         guildMembers.put(guild.id(), GuildMember.getGuildMembersFromArray(membersArray));
                     }
+                    for (Set<GuildMember> memberSet : guildMembers.values()) {
+                        for (GuildMember member : memberSet) {
+                            Commands.KNOWN_PLAYERS.add(member.name());
+                        }
+                    }
                 } catch (Exception e) {
                     System.err.println("Failed to fetch guild list");
                     e.printStackTrace();
@@ -138,7 +143,7 @@ public class Mod {
         String command = split[0].substring(1);
         ClientPlayerEntity player = Minecraft.getInstance().player;
         assert player != null;
-        if (command.equals("cgs") || command.equals("cg") || command.equals("cguild") || command.equals("reconnectinterchat") || command.equals("interchatconfig")) {
+        if (command.equals("cgtell") || command.equals("cgs") || command.equals("cg") || command.equals("cguild") || command.equals("reconnectinterchat") || command.equals("interchatconfig")) {
             try {
                 player.connection.getCommandDispatcher().execute(e.getMessage().substring(1), player.getCommandSource());
             } catch (CommandSyntaxException ex) {

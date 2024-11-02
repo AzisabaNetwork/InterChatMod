@@ -12,8 +12,10 @@ import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -24,6 +26,22 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.arg
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class Commands {
+    public static final @NotNull Set<String> KNOWN_PLAYERS = new HashSet<>();
+
+    public static LiteralArgumentBuilder<FabricClientCommandSource> builderGTell() {
+        return literal("cgtell")
+                .then(argument("player", StringArgumentType.word())
+                        .suggests((ctx, builder) -> CommandSource.suggestMatching(KNOWN_PLAYERS.stream(), builder))
+                        .then(argument("message", StringArgumentType.greedyString())
+                                .executes(ctx -> {
+                                    Mod.client.tell(StringArgumentType.getString(ctx, "player"), StringArgumentType.getString(ctx, "message"));
+                                    KNOWN_PLAYERS.add(StringArgumentType.getString(ctx, "player"));
+                                    return 0;
+                                })
+                        )
+                );
+    }
+
     public static LiteralArgumentBuilder<FabricClientCommandSource> builderGS() {
         return literal("cgs")
                 .then(argument("guild", StringArgumentType.word())
@@ -156,6 +174,34 @@ public class Commands {
                         )
                 )
                 .then(literal("info").executes(ctx -> executeInfo(ctx.getSource())))
+                .then(literal("block")
+                        .then(argument("player", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    Mod.client.block(StringArgumentType.getString(ctx, "player"));
+                                    return 0;
+                                })
+                        )
+                )
+                .then(literal("unblock")
+                        .then(argument("player", StringArgumentType.word())
+                                .executes(ctx -> {
+                                    Mod.client.unblock(StringArgumentType.getString(ctx, "player"));
+                                    return 0;
+                                })
+                        )
+                )
+                .then(literal("tell")
+                        .then(argument("player", StringArgumentType.word())
+                                .suggests((ctx, builder) -> CommandSource.suggestMatching(KNOWN_PLAYERS.stream(), builder))
+                                .then(argument("message", StringArgumentType.greedyString())
+                                        .executes(ctx -> {
+                                            Mod.client.tell(StringArgumentType.getString(ctx, "player"), StringArgumentType.getString(ctx, "message"));
+                                            KNOWN_PLAYERS.add(StringArgumentType.getString(ctx, "player"));
+                                            return 0;
+                                        })
+                                )
+                        )
+                )
                 ;
     }
 
