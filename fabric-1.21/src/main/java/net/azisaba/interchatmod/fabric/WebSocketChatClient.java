@@ -1,11 +1,12 @@
 package net.azisaba.interchatmod.fabric;
 
+import com.google.gson.JsonElement;
+import com.mojang.serialization.JsonOps;
 import net.azisaba.interchatmod.common.AbstractWebSocketChatClient;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TextCodecs;
 
 import java.net.URI;
 import java.util.TimerTask;
@@ -57,9 +58,11 @@ public class WebSocketChatClient extends AbstractWebSocketChatClient {
     }
 
     @Override
-    protected void sendMessage(Component component) {
-        var serializer = LegacyComponentSerializer.legacySection();
-        sendMessage(Text.literal(serializer.serialize(component)));
+    protected void sendJsonMessage(String json) {
+        sendMessage(TextCodecs.CODEC
+                .decode(JsonOps.INSTANCE, gson.fromJson(json, JsonElement.class))
+                .getOrThrow()
+                .getFirst());
     }
 
     private void sendMessage(Text text) {
