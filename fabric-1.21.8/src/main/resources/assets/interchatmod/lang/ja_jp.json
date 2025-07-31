@@ -1,0 +1,7 @@
+{
+  "text.config.interchat-config.option.apiKey": "APIキー",
+  "text.config.interchat-config.option.apiKey.tooltip": "アジ鯖内で/apikeyで入手できるAPIキー",
+  "text.config.interchat-config.option.hideEverything": "すべて非表示にする",
+  "text.config.interchat-config.option.hideEverything.tooltip": "InterChatModからのすべてのゲーム内メッセージを非表示にします",
+  "text.config.interchat-config.option.chatWithoutCommand": "コマンドなしでチャット"
+}

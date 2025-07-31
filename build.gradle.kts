@@ -17,9 +17,8 @@ allprojects {
     repositories {
         // mavenLocal()
         mavenCentral()
-        maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
         maven { url = uri("https://libraries.minecraft.net/") }
-        maven { url = uri("https://repo.blueberrymc.net/repository/maven-public/") }
+        maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
     }
 
     tasks {

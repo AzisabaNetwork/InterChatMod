@@ -17,10 +17,10 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version("0.8.0")
 }
 
-include("fabric-1.21")
-include("blueberry-1.20")
-include("fabric-1.20")
 include("common")
+include("fabric-1.21.8")
+include("fabric-1.21")
+include("fabric-1.20")
 include("fabric-1.19")
 include("fabric-1.18")
 include("fabric-1.17")
