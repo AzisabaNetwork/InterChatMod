@@ -21,7 +21,18 @@ N/A
 
 ## Fabric
 
-### 1.19.4以上
+### 1.21.11
+
+#### 前提Mod
+
+- [fabric-api](https://modrinth.com/mod/fabric-api)
+- [Cloth Config API](https://modrinth.com/mod/cloth-config)
+
+#### あったほうがいいMod
+
+- [Mod Menu](https://modrinth.com/mod/modmenu)
+
+### 1.19.4 - 1.21.8
 
 #### 前提Mod
 
@@ -44,7 +55,5 @@ N/A
 1. Mod Menuが入ってる場合は設定画面を使用可能、それ以外の場合はゲーム内で`/reconnectinterchat <apiキー>`で可能
 
 ## Building
-
-For `blueberry-*` projects, please do `gradlew shadowJar`.
 
 For `fabric-*` projects, please do `gradlew build`. (don't use `-all` jars!)

@@ -1,0 +1,7 @@
+{
+  "text.config.interchat-config.option.apiKey": "API Key",
+  "text.config.interchat-config.option.apiKey.tooltip": "the api key that you can obtain via /apikey",
+  "text.config.interchat-config.option.hideEverything": "Hide everything",
+  "text.config.interchat-config.option.hideEverything.tooltip": "Hide every in-game messages from InterChatMod",
+  "text.config.interchat-config.option.chatWithoutCommand": "Chat without command"
+}

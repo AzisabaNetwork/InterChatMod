@@ -18,6 +18,7 @@ plugins {
 }
 
 include("common")
+include("fabric-1.21.11")
 include("fabric-1.21.8")
 include("fabric-1.21")
 include("fabric-1.20")
@@ -25,4 +26,5 @@ include("fabric-1.19")
 include("fabric-1.18")
 include("fabric-1.17")
 include("fabric-1.16")
-include("forge-1.15")
+// ForgeGradle does not support Gradle 9+ yet
+//include("forge-1.15")

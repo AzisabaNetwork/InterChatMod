@@ -2,21 +2,18 @@ plugins {
     id("fabric-loom") version "1.14-SNAPSHOT"
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(16))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
-val minecraftVersion = "1.17.1"
-val yarnMappings = "1.17.1+build.65"
-val loaderVersion = "0.14.24"
-val fabricVersion = "0.46.1+1.17"
+val minecraftVersion = "1.21.11"
+val yarnMappings = "1.21.11+build.3"
+val loaderVersion = "0.18.2"
+val fabricVersion = "0.139.5+1.21.11"
 val archivesBaseName = "InterChatMod-${project.name}"
 val adventureVersion by project.properties
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+    mavenCentral()
+    maven { url = uri("https://maven.shedaniel.me/") }
     maven { url = uri("https://maven.terraformersmc.com/releases/") }
 }
 
@@ -29,7 +26,10 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
 
-    modImplementation("com.terraformersmc:modmenu:2.0.17")
+    modApi("me.shedaniel.cloth:cloth-config-fabric:19.0.147") {
+        exclude("net.fabricmc.fabric-api")
+    }
+    modApi("com.terraformersmc:modmenu:15.0.0")
 
     // Uncomment the following line to enable the deprecated Fabric API modules.
     // These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
@@ -45,6 +45,7 @@ dependencies {
     include("net.kyori:adventure-text-serializer-json:$adventureVersion")
     include("net.kyori:adventure-text-serializer-gson:$adventureVersion")
     include("org.java-websocket:Java-WebSocket:1.5.4")
+    include("de.marhali:json5-java:3.0.0")
 }
 
 tasks {
