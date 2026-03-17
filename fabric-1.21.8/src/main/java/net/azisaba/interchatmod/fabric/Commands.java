@@ -9,16 +9,13 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.argument;
@@ -223,15 +220,33 @@ public class Commands {
                         .append(Text.literal(String.valueOf(guild.capacity())).formatted(Formatting.RED))
         );
         Consumer<String> sendRole = (role) -> {
-            String players =
+            List<MutableText> players =
                     members.stream()
                             .filter(m -> m.role().equals(role.toUpperCase(Locale.ROOT)))
-                            .map(GuildMember::name)
-                            .collect(Collectors.joining(", "));
-            source.sendFeedback(
-                    Text.literal(role + ": ").formatted(Formatting.GOLD)
-                            .append(Text.literal(players).formatted(Formatting.WHITE))
-            );
+                            .map(member -> {
+                                if (member.presence() == null) {
+                                    return Text.literal(member.name()).formatted(Formatting.WHITE);
+                                }
+                                if (System.currentTimeMillis() - member.presence().lastSeen < 60000) {
+                                    return Text.literal(member.name()).formatted(Formatting.GREEN)
+                                            .styled(style -> style.withHoverEvent(
+                                                    new HoverEvent.ShowText(
+                                                            Text.literal("プレイ中: ")
+                                                                    .formatted(Formatting.GREEN)
+                                                                    .append(Text.literal(member.presence().server).formatted(Formatting.YELLOW)))));
+                                } else {
+                                    return Text.literal(member.name()).formatted(Formatting.WHITE);
+                                }
+                            })
+                            .toList();
+            MutableText mu = Text.literal(role + ": ").formatted(Formatting.GOLD);
+            for (int i = 0; i < players.size(); i++) {
+                mu = mu.append(players.get(i));
+                if (i < players.size() - 1) {
+                    mu = mu.append(Text.literal(", "));
+                }
+            }
+            source.sendFeedback(mu);
         };
         sendRole.accept("Owner");
         sendRole.accept("Moderator");

@@ -242,6 +242,38 @@ public class Commands {
                         .appendSibling(new StringTextComponent(String.valueOf(guild.capacity())).applyTextStyles(TextFormatting.RED)),
                 false
         );
+        /*
+                Consumer<String> sendRole = (role) -> {
+            List<MutableText> players =
+                    members.stream()
+                            .filter(m -> m.role().equals(role.toUpperCase(Locale.ROOT)))
+                            .map(member -> {
+                                if (member.presence() == null) {
+                                    return new LiteralText(member.name()).formatted(Formatting.WHITE);
+                                }
+                                if (System.currentTimeMillis() - member.presence().lastSeen < 60000) {
+                                    return new LiteralText(member.name()).formatted(Formatting.GREEN)
+                                            .styled(style -> style.withHoverEvent(
+                                                    new HoverEvent(
+                                                            HoverEvent.Action.SHOW_TEXT,
+                                                            new LiteralText("プレイ中: ")
+                                                                    .formatted(Formatting.GREEN)
+                                                                    .append(new LiteralText(member.presence().server).formatted(Formatting.YELLOW)))));
+                                } else {
+                                    return new LiteralText(member.name()).formatted(Formatting.WHITE);
+                                }
+                            })
+                            .toList();
+            MutableText mu = new LiteralText(role + ": ").formatted(Formatting.GOLD);
+            for (int i = 0; i < players.size(); i++) {
+                mu = mu.append(players.get(i));
+                if (i < players.size() - 1) {
+                    mu = mu.append(new LiteralText(", "));
+                }
+            }
+            source.sendFeedback(mu);
+        };
+         */
         Consumer<String> sendRole = (role) -> {
             String players =
                     members.stream()

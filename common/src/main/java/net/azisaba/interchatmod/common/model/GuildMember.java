@@ -18,13 +18,15 @@ public final class GuildMember {
     private final @NotNull String name;
     private final @NotNull String role;
     private final @Nullable String nickname;
+    private final @Nullable PresenceData presence;
 
-    public GuildMember(long guildId, @NotNull UUID uuid, @NotNull String name, @NotNull String role, @Nullable String nickname) {
+    public GuildMember(long guildId, @NotNull UUID uuid, @NotNull String name, @NotNull String role, @Nullable String nickname, @Nullable PresenceData presence) {
         this.guildId = guildId;
         this.uuid = uuid;
         this.name = name;
         this.role = role;
         this.nickname = nickname;
+        this.presence = presence;
     }
 
     @NotNull
@@ -32,13 +34,21 @@ public final class GuildMember {
         Set<GuildMember> set = new HashSet<>();
         for (JsonElement element : arr) {
             JsonObject obj = element.getAsJsonObject();
+            PresenceData presence = null;
+            if (obj.has("presence")) {
+                presence = new PresenceData(
+                        obj.get("presence").getAsJsonObject().get("server").getAsString(),
+                        obj.get("presence").getAsJsonObject().get("last_seen").getAsLong()
+                );
+            }
             set.add(
                     new GuildMember(
                             obj.get("guild_id").getAsLong(),
                             UUID.fromString(obj.get("uuid").getAsString()),
                             obj.get("name").getAsString(),
                             obj.get("role").getAsString(),
-                            obj.get("nickname").isJsonNull() ? null : obj.get("nickname").getAsString()
+                            obj.get("nickname").isJsonNull() ? null : obj.get("nickname").getAsString(),
+                            presence
                     )
             );
         }
@@ -63,6 +73,10 @@ public final class GuildMember {
 
     public @Nullable String nickname() {
         return nickname;
+    }
+
+    public @Nullable PresenceData presence() {
+        return presence;
     }
 
     @Override
