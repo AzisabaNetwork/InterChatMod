@@ -44,6 +44,7 @@ public class Mod implements ModInitializer, ModMenuApi {
         TIMER.schedule(new TimerTask() {
             @Override
             public void run() {
+                if (ModConfig.apiKey.isEmpty()) return;
                 try {
                     Gson gson = new Gson();
                     JsonArray arr = gson.fromJson(makeRequest("interchat/guilds/list"), JsonArray.class);
@@ -119,6 +120,7 @@ public class Mod implements ModInitializer, ModMenuApi {
     }
 
     public static void trySwitch() {
+        if (ModConfig.apiKey.isEmpty()) return;
         if (client == null) return;
         ServerInfo serverData = MinecraftClient.getInstance().getCurrentServerEntry();
         if (serverData != null) {

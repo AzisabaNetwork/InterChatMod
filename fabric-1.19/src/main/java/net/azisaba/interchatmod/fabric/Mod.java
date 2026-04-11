@@ -16,8 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -47,6 +45,7 @@ public class Mod implements ModInitializer {
         TIMER.schedule(new TimerTask() {
             @Override
             public void run() {
+                if (CONFIG.apiKey().isEmpty()) return;
                 try {
                     Gson gson = new Gson();
                     JsonArray arr = gson.fromJson(makeRequest("interchat/guilds/list"), JsonArray.class);
@@ -122,6 +121,7 @@ public class Mod implements ModInitializer {
     }
 
     public static void trySwitch() {
+        if (CONFIG.apiKey().isEmpty()) return;
         if (client == null) return;
         ServerInfo serverData = MinecraftClient.getInstance().getCurrentServerEntry();
         if (serverData != null) {
