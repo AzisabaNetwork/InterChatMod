@@ -70,7 +70,7 @@ public class Mod {
     }
 
     private static @NotNull String makeRequest(String path) throws IOException {
-        String url = "https://api-ktor.azisaba.net/" + path;
+        String url = "https://" + ModConfig.getEffectiveApiHost() + "/" + path;
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
         return ByteStreams.readString(connection.getInputStream(), StandardCharsets.UTF_8);
@@ -84,14 +84,8 @@ public class Mod {
             System.out.println("Attempting to connect to the server");
             // it has to be insecure url, java 8 does not have required ssl certificate,
             // and we had to disable Automatic HTTPS Rewrites on Cloudflare settings :<
-            URI uri = new URI("ws://api-ktor.azisaba.net/interchat/stream?server=dummy");
+            URI uri = new URI("ws://" + ModConfig.getEffectiveApiHost() + "/interchat/stream?server=dummy");
             client = new WebSocketChatClient(uri);
-            if (uri.getScheme().startsWith("wss")) {
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, null, null);
-                SSLSocketFactory factory = sslContext.getSocketFactory();
-                client.setSocketFactory(factory);
-            }
             client.connectBlocking();
         } catch (Exception e) {
             System.err.println("Failed to establish WebSocket session");

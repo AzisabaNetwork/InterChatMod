@@ -19,6 +19,12 @@ import java.util.Optional;
 public class ModConfigScreen extends OptionsScreen {
     private final AbstractOption[] options = new AbstractOption[]{
             new StringOption(
+                    "text.config.interchat-config.option.apiHost",
+                    "text.config.interchat-config.option.apiHost.tooltip",
+                    () -> ModConfig.apiHost,
+                    s -> ModConfig.apiHost = s
+            ),
+            new StringOption(
                     "text.config.interchat-config.option.apiKey",
                     "text.config.interchat-config.option.apiKey.tooltip",
                     () -> ModConfig.apiKey,

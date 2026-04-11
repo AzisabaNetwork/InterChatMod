@@ -10,4 +10,5 @@ public class Constants {
             "%gname", "%server", "%playername", "%username", "%username-n", "%msg", "%prereplace-b", "%prereplace",
             "%prefix", "%{prefix:server}", "%{prefix:server:default}", "%suffix", "%{suffix:server}", "%{suffix:server:default}"
     )));
+    public static final String DEFAULT_API_HOST = "api-ktor.azisaba.net";
 }

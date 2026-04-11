@@ -1,4 +1,6 @@
 {
+  "text.config.interchat-config.option.apiHost": "APIホスト",
+  "text.config.interchat-config.option.apiHost.tooltip": "APIホストを上書きします。カスタムホストを使用したい場合のみ編集してください。",
   "text.config.interchat-config.option.apiKey": "APIキー",
   "text.config.interchat-config.option.apiKey.tooltip": "アジ鯖内で/apikeyで入手できるAPIキー",
   "text.config.interchat-config.option.hideEverything": "すべて非表示にする",

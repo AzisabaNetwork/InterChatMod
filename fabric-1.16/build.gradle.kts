@@ -58,6 +58,7 @@ dependencies {
 
 tasks {
     processResources {
+        dependsOn(":common:jar")
         from(configurations.getByName("includeResourcesInJar").map { if (it.isDirectory) it else zipTree(it) }) {
             include("assets/**")
         }

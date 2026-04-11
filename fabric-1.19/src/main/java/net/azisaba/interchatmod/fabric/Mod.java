@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.azisaba.interchatmod.common.model.Guild;
 import net.azisaba.interchatmod.common.model.GuildMember;
+import net.azisaba.interchatmod.common.util.Constants;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.minecraft.client.MinecraftClient;
@@ -20,7 +21,7 @@ import javax.net.ssl.SSLSocketFactory;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,9 +71,13 @@ public class Mod implements ModInitializer {
         reconnect();
     }
 
-    private static String makeRequest(String path) throws IOException {
-        String url = "https://api-ktor.azisaba.net/" + path;
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+    private static String getEffectiveApiHost() {
+        return CONFIG.apiHost().isEmpty() ? Constants.DEFAULT_API_HOST : CONFIG.apiHost();
+    }
+
+    private static String makeRequest(String path) throws IOException, URISyntaxException {
+        String url = "https://" + getEffectiveApiHost() + "/" + path;
+        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + CONFIG.apiKey());
         return new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     }
@@ -83,14 +88,8 @@ public class Mod implements ModInitializer {
                 client.close();
             }
             LOGGER.info("Attempting to connect to the server");
-            URI uri = new URI("wss://api-ktor.azisaba.net/interchat/stream?server=dummy");
+            URI uri = new URI("wss://" + getEffectiveApiHost() + "/interchat/stream?server=dummy");
             client = new WebSocketChatClient(uri);
-            if (uri.getScheme().startsWith("wss")) {
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, null, null);
-                SSLSocketFactory factory = sslContext.getSocketFactory();
-                client.setSocketFactory(factory);
-            }
             client.connect();
         } catch (Exception e) {
             LOGGER.error("Failed to establish WebSocket session", e);

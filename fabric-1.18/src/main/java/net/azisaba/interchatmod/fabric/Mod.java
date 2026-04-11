@@ -72,7 +72,7 @@ public class Mod implements ModInitializer, ModMenuApi {
     }
 
     private static @NotNull String makeRequest(String path) throws IOException {
-        String url = "https://api-ktor.azisaba.net/" + path;
+        String url = "https://" + ModConfig.getEffectiveApiHost() + "/" + path;
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
         return ByteStreams.readString(connection.getInputStream(), StandardCharsets.UTF_8);
@@ -84,14 +84,8 @@ public class Mod implements ModInitializer, ModMenuApi {
                 client.close();
             }
             LOGGER.info("Attempting to connect to the server");
-            URI uri = new URI("wss://api-ktor.azisaba.net/interchat/stream?server=dummy");
+            URI uri = new URI("wss://" + ModConfig.getEffectiveApiHost() + "/interchat/stream?server=dummy");
             client = new WebSocketChatClient(uri);
-            if (uri.getScheme().startsWith("wss")) {
-                SSLContext sslContext = SSLContext.getInstance("TLS");
-                sslContext.init(null, null, null);
-                SSLSocketFactory factory = sslContext.getSocketFactory();
-                client.setSocketFactory(factory);
-            }
             client.connectBlocking();
         } catch (Exception e) {
             LOGGER.error("Failed to establish WebSocket session", e);

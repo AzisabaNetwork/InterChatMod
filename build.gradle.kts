@@ -1,16 +1,18 @@
 plugins {
     java
     `java-library`
+    id("com.modrinth.minotaur") version "2.+"
 }
 
 allprojects {
     apply {
         plugin("java")
         plugin("java-library")
+        plugin("com.modrinth.minotaur")
     }
 
     group = "net.azisaba.interchatmod"
-    version = "0.6.0"
+    version = "0.7.0"
 
     repositories {
         // mavenLocal()

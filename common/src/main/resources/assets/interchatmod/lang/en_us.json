@@ -1,4 +1,6 @@
 {
+  "text.config.interchat-config.option.apiHost": "API Host",
+  "text.config.interchat-config.option.apiHost.tooltip": "the api host to override the default one. Leave empty unless you know what you're doing!",
   "text.config.interchat-config.option.apiKey": "API Key",
   "text.config.interchat-config.option.apiKey.tooltip": "the api key that you can obtain via /apikey",
   "text.config.interchat-config.option.hideEverything": "Hide everything",

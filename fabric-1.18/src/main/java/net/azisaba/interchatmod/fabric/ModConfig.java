@@ -2,8 +2,10 @@ package net.azisaba.interchatmod.fabric;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import net.azisaba.interchatmod.common.util.Constants;
 import net.azisaba.interchatmod.common.util.LazyValue;
 import net.fabricmc.loader.api.FabricLoader;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,9 +15,14 @@ public class ModConfig {
     private static final LazyValue<File> file =
             new LazyValue<>(LazyValue.Mode.NON_BLOCKING, () -> new File(FabricLoader.getInstance().getConfigDir().toFile(), "interchatmod.json"));
 
+    public static String apiHost = "";
     public static String apiKey = "";
     public static boolean hideEverything = false;
     public static boolean chatWithoutCommand = false;
+
+    public static @NotNull String getEffectiveApiHost() {
+        return apiHost.isEmpty() ? Constants.DEFAULT_API_HOST : apiHost;
+    }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
     private static void prepareFile() throws IOException {
@@ -30,6 +37,7 @@ public class ModConfig {
         try {
             prepareFile();
             JsonObject object = new JsonObject();
+            object.addProperty("apiHost", apiHost);
             object.addProperty("apiKey", apiKey);
             object.addProperty("hideEverything", hideEverything);
             object.addProperty("chatWithoutCommand", chatWithoutCommand);
@@ -43,6 +51,9 @@ public class ModConfig {
         try {
             if (!file.get().exists()) return;
             JsonObject object = new Gson().fromJson(Files.readString(file.get().toPath()), JsonObject.class);
+            if (object.has("apiHost")) {
+                apiHost = object.get("apiHost").getAsString();
+            }
             if (object.has("apiKey")) {
                 apiKey = object.get("apiKey").getAsString();
             }
