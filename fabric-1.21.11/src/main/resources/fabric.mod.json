@@ -28,5 +28,8 @@
 		"java": ">=21",
 		"fabric-api": "*",
 		"cloth-config": "*"
-	}
+	},
+	"mixins": [
+		"interchatmod.mixins.json"
+	]
 }

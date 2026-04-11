@@ -95,3 +95,14 @@ java {
     // If you remove this line, sources will not be generated.
     withSourcesJar()
 }
+
+modrinth {
+    versionNumber.set("${project.version}+1.16.5-fabric")
+    uploadFile.set(tasks.remapJar)
+    file.set { tasks.remapJar.get().outputs.files.singleFile }
+    gameVersions.addAll("1.16.5")
+    loaders.add("fabric")
+    dependencies {
+        required.project("fabric-api", "modmenu")
+    }
+}

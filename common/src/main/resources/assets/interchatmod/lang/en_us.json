@@ -27,5 +27,8 @@
   "generic.disconnected": "Disconnected from InterChat. Will try to reconnect in 5 seconds.",
   "generic.disconnected_check_api_key": "Disconnected from InterChat. Please check your API key and do /reconnectinterchat [apikey] to reconnect.",
   "generic.error_from_server": "Error was returned from the server: %s",
-  "generic.error_in_connection": "Error in WebSocket connection: %s"
+  "generic.error_in_connection": "Error in WebSocket connection: %s",
+  "generic.upload": "Upload",
+  "generic.upload.tooltip": "Upload screenshot to the guild",
+  "generic.upload_image_failed": "Failed to upload image: %s"
 }

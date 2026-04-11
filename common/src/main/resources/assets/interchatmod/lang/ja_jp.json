@@ -27,5 +27,8 @@
   "generic.disconnected": "ギルドチャットから切断されました。5秒後に再接続を試みます。",
   "generic.disconnected_check_api_key": "ギルドチャットから切断されました。APIキーを確認して、/reconnectinterchat [apikey]を実行してください。",
   "generic.error_from_server": "サーバーからエラーが返されました: %s",
-  "generic.error_in_connection": "WebSocket接続でエラーが発生しました: %s"
+  "generic.error_in_connection": "WebSocket接続でエラーが発生しました: %s",
+  "generic.upload": "アップロード",
+  "generic.upload.tooltip": "スクリーンショットをギルドにアップロードする",
+  "generic.upload_image_failed": "画像のアップロードに失敗しました: %s"
 }

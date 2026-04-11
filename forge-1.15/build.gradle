@@ -50,7 +50,7 @@ repositories {
     maven fg.forgeMaven
     maven fg.minecraftLibsMaven
     maven {
-        url "https://repo.spongepowered.org/repository/maven-public/"
+        url = "https://repo.spongepowered.org/repository/maven-public/"
     }
     mavenCentral()
 }
@@ -177,7 +177,17 @@ publishing {
     }
     repositories {
         maven {
-            url "file:///${project.projectDir}/mcmodsrepo"
+            url = "file:///${project.projectDir}/mcmodsrepo"
         }
     }
+}
+
+modrinth {
+    versionNumber.set("${project.version}+1.15.2-forge")
+    uploadFile.set(tasks.renameShadowJar)
+    file.set(layout.file(provider {
+        tasks.renameShadowJar.outputs.files.singleFile
+    }))
+    gameVersions.addAll("1.15.2")
+    loaders.add("forge")
 }

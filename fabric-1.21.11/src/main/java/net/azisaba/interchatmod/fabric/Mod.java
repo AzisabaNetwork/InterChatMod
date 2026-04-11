@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.azisaba.interchatmod.common.model.Guild;
 import net.azisaba.interchatmod.common.model.GuildMember;
+import net.azisaba.interchatmod.common.util.Constants;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.message.v1.ClientSendMessageEvents;
@@ -18,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -32,6 +34,7 @@ public class Mod implements ModInitializer {
     public static final Timer TIMER = new Timer(true);
     public static final Set<Guild> GUILDS = Collections.synchronizedSet(new HashSet<>());
     public static final Map<Long, Set<GuildMember>> guildMembers = new ConcurrentHashMap<>();
+    public static final Map<UUID, File> images = new ConcurrentHashMap<>();
     public static WebSocketChatClient client;
 
     @Override
@@ -115,6 +118,17 @@ public class Mod implements ModInitializer {
         String url = "https://" + CONFIG.getEffectiveApiHost() + "/" + path;
         HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + CONFIG.apiKey);
+        return new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    public static String uploadImage(byte[] data) throws IOException, URISyntaxException {
+        String url = "https://" + Constants.DEFAULT_API_HOST + "/interchat/upload_image";
+        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
+        connection.addRequestProperty("Authorization", "Bearer " + CONFIG.apiKey);
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "image/png");
+        connection.getOutputStream().write(data);
         return new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
     }
 
