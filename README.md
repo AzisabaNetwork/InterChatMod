@@ -6,7 +6,7 @@ English | [日本語](https://github.com/AzisabaNetwork/InterChatMod/blob/main/R
 
 Cross-server chat mod for Minecraft.
 
-## Very Important
+## ⚠️ Very Important
 
 After an API key has entered into the config (and saved), this mod will attempt to connect to `api-ktor.azisaba.net`
 to connect you to the InterChat server which we host on private infrastructure and Cloudflare (a third-party service).
