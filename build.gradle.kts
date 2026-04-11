@@ -1,14 +1,12 @@
 plugins {
     java
     `java-library`
-    id("com.gradleup.shadow") version "9.4.1"
 }
 
 allprojects {
     apply {
         plugin("java")
         plugin("java-library")
-        plugin("com.gradleup.shadow")
     }
 
     group = "net.azisaba.interchatmod"
@@ -29,14 +27,6 @@ allprojects {
     tasks {
         compileJava {
             options.encoding = "UTF-8"
-        }
-    }
-}
-
-subprojects {
-    tasks {
-        shadowJar {
-            archiveBaseName.set("InterChatMod-${project.name}")
         }
     }
 }

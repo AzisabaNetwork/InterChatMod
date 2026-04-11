@@ -46,10 +46,21 @@ dependencies {
     include("net.kyori:adventure-text-serializer-json:$adventureVersion")
     include("net.kyori:adventure-text-serializer-gson:$adventureVersion")
     include("org.java-websocket:Java-WebSocket:1.5.4")
+    val includeResourcesInJar = configurations.create("includeResourcesInJar") {
+        isCanBeResolved = true
+        isCanBeConsumed = false
+    }
+    includeResourcesInJar(project(":common")) {
+        isTransitive = false
+    }
 }
 
 tasks {
     processResources {
+        from(configurations.getByName("includeResourcesInJar").map { if (it.isDirectory) it else zipTree(it) }) {
+            include("assets/**")
+        }
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         inputs.property("version", project.version)
 
         filesMatching("fabric.mod.json") {
@@ -73,10 +84,6 @@ tasks {
         from("LICENSE") {
             rename { "${it}_${archivesBaseName}"}
         }
-    }
-
-    shadowJar {
-        archiveBaseName.set("$archivesBaseName-DO-NOT-USE")
     }
 }
 

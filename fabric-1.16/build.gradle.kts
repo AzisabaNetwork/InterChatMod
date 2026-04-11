@@ -47,10 +47,21 @@ dependencies {
     include("org.java-websocket:Java-WebSocket:1.5.4")
     include("org.slf4j:slf4j-api:2.0.6")
     include("org.slf4j:slf4j-nop:2.0.6")
+    val includeResourcesInJar = configurations.create("includeResourcesInJar") {
+        isCanBeResolved = true
+        isCanBeConsumed = false
+    }
+    includeResourcesInJar(project(":common")) {
+        isTransitive = false
+    }
 }
 
 tasks {
     processResources {
+        from(configurations.getByName("includeResourcesInJar").map { if (it.isDirectory) it else zipTree(it) }) {
+            include("assets/**")
+        }
+        duplicatesStrategy = DuplicatesStrategy.INCLUDE
         inputs.property("version", project.version)
 
         filesMatching("fabric.mod.json") {
@@ -74,10 +85,6 @@ tasks {
         from("LICENSE") {
             rename { "${it}_${archivesBaseName}"}
         }
-    }
-
-    shadowJar {
-        archiveBaseName.set("$archivesBaseName-DO-NOT-USE")
     }
 }
 
