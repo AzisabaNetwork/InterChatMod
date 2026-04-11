@@ -51,7 +51,7 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
         openAt = System.currentTimeMillis();
         auth(getApiKey());
         trySwitch();
-        sendMessage("ギルドチャットに接続しました。");
+        sendMessage(Component.translatable("generic.connected"));
     }
 
     @Override
@@ -69,7 +69,7 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
             sendMessage(GsonComponentSerializer.gson().deserialize(obj.get("json").getAsString()));
         }
         if (type.equals("error_message")) {
-            sendMessage(Component.text("サーバーからエラーが返されました: " + obj.get("message").getAsString(), NamedTextColor.RED));
+            sendMessage(Component.translatable("generic.error_from_server", Component.text(obj.get("message").getAsString())).color(NamedTextColor.RED));
         }
         if (type.equals("guild")) {
             selectedGuild = obj.get("guildId").getAsLong();
@@ -79,18 +79,18 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
     @Override
     public void onClose(int code, String reason, boolean remote) {
         if (System.currentTimeMillis() - openAt < 1000) {
-            sendMessage("ギルドチャットから切断されました。APIキーを確認して、/reconnectinterchat [apikey]を実行してください。");
+            sendMessage(Component.translatable("generic.disconnected_check_api_key"));
             return;
         }
         if (remote) {
-            sendMessage("ギルドチャットから切断されました。5秒後に再接続を試みます。");
+            sendMessage(Component.translatable("generic.disconnected"));
             scheduleReconnect();
         }
     }
 
     @Override
     public void onError(Exception ex) {
-        sendMessage("WebSocket接続でエラーが発生しました: " + ex.getMessage());
+        sendMessage(Component.translatable("generic.error_in_connection", Component.text(ex.getMessage())).color(NamedTextColor.RED));
         ex.printStackTrace();
     }
 

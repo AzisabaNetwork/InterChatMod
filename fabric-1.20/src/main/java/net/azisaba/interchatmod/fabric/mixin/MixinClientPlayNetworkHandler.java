@@ -27,7 +27,7 @@ public class MixinClientPlayNetworkHandler {
             Mod.client.sendMessageToGuild(null, content);
         } catch (WebsocketNotConnectedException e) {
             assert MinecraftClient.getInstance().player != null;
-            MinecraftClient.getInstance().player.sendMessage(Text.literal("ギルドチャットに接続されていません。"));
+            MinecraftClient.getInstance().player.sendMessage(Text.translatable("generic.not_connected"));
             Mod.reconnect();
         }
     }

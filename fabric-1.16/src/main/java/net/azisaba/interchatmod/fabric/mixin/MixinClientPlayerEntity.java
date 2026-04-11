@@ -5,6 +5,7 @@ import net.azisaba.interchatmod.fabric.ModConfig;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import org.java_websocket.exceptions.WebsocketNotConnectedException;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,7 +30,7 @@ public class MixinClientPlayerEntity {
             Mod.client.sendMessageToGuild(null, content);
         } catch (WebsocketNotConnectedException e) {
             assert MinecraftClient.getInstance().player != null;
-            MinecraftClient.getInstance().player.sendMessage(Text.of("ギルドチャットに接続されていません。"), false);
+            MinecraftClient.getInstance().player.sendMessage(new TranslatableText("generic.not_connected"), false);
             Mod.reconnect();
         }
     }

@@ -3,6 +3,7 @@ package net.azisaba.interchatmod.forge;
 import net.azisaba.interchatmod.forge.components.StringOption;
 import net.azisaba.interchatmod.forge.components.TextFieldTooltipWidget;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.I18n;
 import net.minecraft.client.gui.IGuiEventListener;
 import net.minecraft.client.gui.screen.OptionsScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -59,7 +60,7 @@ public class ModConfigScreen extends OptionsScreen {
             this.addButton(abstractoption.createWidget(this.minecraft.gameSettings, j, k, 150));
             ++i;
         }
-        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, "Done", (button) -> {
+        this.addButton(new Button(this.width / 2 - 100, this.height - 27, 200, 20, I18n.format("gui.done"), (button) -> {
             ModConfig.save();
             assert this.minecraft != null;
             this.minecraft.displayGuiScreen(this.previous);

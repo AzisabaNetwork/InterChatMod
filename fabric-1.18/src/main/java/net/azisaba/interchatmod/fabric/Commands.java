@@ -201,20 +201,18 @@ public class Commands {
     private static int executeInfo(FabricClientCommandSource source) {
         Guild guild = Mod.GUILDS.stream().filter(g -> g.id() == Mod.client.getSelectedGuild()).findAny().orElse(null);
         if (guild == null) {
-            source.sendError(Text.of("無効なギルドが指定されています。/cgs (ギルド)で選択してください。"));
+            source.sendError(new TranslatableText("generic.invalid_selected_guild"));
             return 0;
         }
         Set<GuildMember> members = Mod.guildMembers.getOrDefault(guild.id(), Collections.emptySet());
         source.sendFeedback(
-                new LiteralText("--- ギルド").formatted(Formatting.GOLD)
-                        .append(new LiteralText(guild.name()).formatted(Formatting.AQUA))
-                        .append(new LiteralText("の情報 ---").formatted(Formatting.GOLD))
+                new TranslatableText("generic.guild_info_header", new LiteralText(guild.name()).formatted(Formatting.AQUA)).formatted(Formatting.GOLD)
         );
         source.sendFeedback(
-                new LiteralText("メンバー数: ").formatted(Formatting.GOLD)
-                        .append(new LiteralText(String.valueOf(members.size())).formatted(Formatting.RED))
-                        .append(new LiteralText("/").formatted(Formatting.GOLD))
-                        .append(new LiteralText(String.valueOf(guild.capacity())).formatted(Formatting.RED))
+                new TranslatableText("generic.guild_members",
+                        new LiteralText(String.valueOf(members.size())).formatted(Formatting.RED),
+                        new LiteralText(String.valueOf(guild.capacity())).formatted(Formatting.RED)
+                ).formatted(Formatting.GOLD)
         );
         Consumer<String> sendRole = (role) -> {
             List<MutableText> players =
@@ -229,15 +227,15 @@ public class Commands {
                                             .styled(style -> style.withHoverEvent(
                                                     new HoverEvent(
                                                             HoverEvent.Action.SHOW_TEXT,
-                                                            new LiteralText("プレイ中: ")
-                                                                    .formatted(Formatting.GREEN)
-                                                                    .append(new LiteralText(member.presence().server).formatted(Formatting.YELLOW)))));
+                                                            new TranslatableText("generic.guild_presence_playing",
+                                                                    new LiteralText(member.presence().server).formatted(Formatting.YELLOW)
+                                                            ).formatted(Formatting.GREEN))));
                                 } else {
                                     return new LiteralText(member.name()).formatted(Formatting.WHITE);
                                 }
                             })
                             .toList();
-            MutableText mu = new LiteralText(role + ": ").formatted(Formatting.GOLD);
+            MutableText mu = new TranslatableText(roleTranslationKey(role), new LiteralText("")).formatted(Formatting.GOLD);
             for (int i = 0; i < players.size(); i++) {
                 mu = mu.append(players.get(i));
                 if (i < players.size() - 1) {
@@ -251,15 +249,16 @@ public class Commands {
         sendRole.accept("Member");
         source.sendFeedback(Text.of(""));
         source.sendFeedback(
-                new LiteralText("公開: ").formatted(Formatting.GOLD)
-                        .append(new LiteralText(String.valueOf(guild.open())).formatted(guild.open() ? Formatting.GREEN : Formatting.RED))
+                new TranslatableText("generic.guild_open",
+                        new TranslatableText(booleanTranslationKey(guild.open())).formatted(guild.open() ? Formatting.GREEN : Formatting.RED)
+                ).formatted(Formatting.GOLD)
         );
         source.sendFeedback(
-                new LiteralText("チャット形式: ").formatted(Formatting.GOLD)
+                new TranslatableText("generic.guild_chat_format").formatted(Formatting.GOLD)
                         .append(new LiteralText(guild.format())
                                 .formatted(Formatting.WHITE)
                                 .styled(style ->
-                                        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new LiteralText("クリックでコピー")))
+                                        style.withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("generic.copy_on_click")))
                                                 .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, guild.format()))
                                 )
                         )
@@ -270,11 +269,11 @@ public class Commands {
     private static int executeFocus(FabricClientCommandSource source, String guildName) {
         Guild guild = Mod.GUILDS.stream().filter(g -> g.name().equalsIgnoreCase(guildName)).findAny().orElse(null);
         if (guild == null) {
-            source.sendError(Text.of("そんなぎるどないよ " + guildName));
+            source.sendError(new TranslatableText("generic.guild_not_found", guildName));
             return 0;
         }
         Mod.client.selectGuild(guild.id());
-        source.sendFeedback(Text.of(guild.name() + " にちゃっとするようにしたよ(/cg <めっせーじ>でできるよ)"));
+        source.sendFeedback(new TranslatableText("generic.guild_focus_set", guild.name()));
         return 1;
     }
 
@@ -282,7 +281,7 @@ public class Commands {
         if (guildName != null) {
             Guild guild = Mod.GUILDS.stream().filter(g -> g.name().equalsIgnoreCase(guildName)).findAny().orElse(null);
             if (guild == null) {
-                source.sendError(Text.of("そんなぎるどないよ " + guildName));
+                source.sendError(new TranslatableText("generic.guild_not_found", guildName));
                 return 0;
             }
             Mod.client.sendMessageToGuild(guild.id(), message);
@@ -290,5 +289,13 @@ public class Commands {
             Mod.client.sendMessageToGuild(null, message);
         }
         return 1;
+    }
+
+    private static String roleTranslationKey(String role) {
+        return "generic.guild_role." + role.toLowerCase(Locale.ROOT);
+    }
+
+    private static String booleanTranslationKey(boolean value) {
+        return "generic.boolean." + value;
     }
 }

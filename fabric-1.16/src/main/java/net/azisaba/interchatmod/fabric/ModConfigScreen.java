@@ -22,7 +22,7 @@ public class ModConfigScreen extends GameOptionsScreen {
     private ButtonListWidget list;
 
     public ModConfigScreen(@Nullable Screen previous) {
-        super(previous, MinecraftClient.getInstance().options, Text.of("InterChatMod"));
+        super(previous, MinecraftClient.getInstance().options, new TranslatableText("text.config.interchat-config.title"));
         this.previous = previous;
     }
 

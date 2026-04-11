@@ -81,7 +81,7 @@ public class Mod implements ModInitializer {
                 Mod.client.sendMessageToGuild(null, message);
             } catch (WebsocketNotConnectedException e) {
                 assert MinecraftClient.getInstance().player != null;
-                MinecraftClient.getInstance().player.sendMessage(Text.literal("ギルドチャットに接続されていません。"), false);
+                MinecraftClient.getInstance().player.sendMessage(Text.translatable("generic.not_connected"), false);
                 Mod.reconnect();
             }
             return false;

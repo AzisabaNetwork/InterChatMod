@@ -64,13 +64,13 @@ public final class ModConfig {
     public @NotNull Screen createConfigScreen(@Nullable Screen parent) {
         ConfigBuilder builder = ConfigBuilder.create()
                 .setParentScreen(parent)
-                .setTitle(Text.of("InterChat"))
+                .setTitle(Text.translatable("text.config.interchat-config.title"))
                 .setSavingRunnable(() -> {
                     save();
                     Mod.reconnect();
                 });
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
-        builder.getOrCreateCategory(Text.of("General"))
+        builder.getOrCreateCategory(Text.translatable("text.config.interchat-config.category.general"))
                 .addEntry(entryBuilder.startStrField(Text.translatable("text.config.interchat-config.option.apiHost"), apiHost)
                         .setTooltip(Text.translatable("text.config.interchat-config.option.apiHost.tooltip"))
                         .setDefaultValue("")

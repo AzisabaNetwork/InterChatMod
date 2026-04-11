@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.ISuggestionProvider;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
@@ -225,21 +226,19 @@ public class Commands {
         CommandSource source = (CommandSource) provider;
         Guild guild = Mod.GUILDS.stream().filter(g -> g.id() == Mod.client.getSelectedGuild()).findAny().orElse(null);
         if (guild == null) {
-            source.sendErrorMessage(new StringTextComponent("無効なギルドが指定されています。/cgs (ギルド)で選択してください。"));
+            source.sendErrorMessage(new TranslationTextComponent("generic.invalid_selected_guild"));
             return 0;
         }
         Set<GuildMember> members = Mod.guildMembers.getOrDefault(guild.id(), Collections.emptySet());
         source.sendFeedback(
-                new StringTextComponent("--- ギルド").applyTextStyles(TextFormatting.GOLD)
-                        .appendSibling(new StringTextComponent(guild.name()).applyTextStyles(TextFormatting.AQUA))
-                        .appendSibling(new StringTextComponent("の情報 ---").applyTextStyles(TextFormatting.GOLD)),
+                new TranslationTextComponent("generic.guild_info_header", new StringTextComponent(guild.name()).applyTextStyles(TextFormatting.AQUA)).applyTextStyles(TextFormatting.GOLD),
                 false
         );
         source.sendFeedback(
-                new StringTextComponent("メンバー数: ").applyTextStyles(TextFormatting.GOLD)
-                        .appendSibling(new StringTextComponent(String.valueOf(members.size())).applyTextStyles(TextFormatting.RED))
-                        .appendSibling(new StringTextComponent("/").applyTextStyles(TextFormatting.GOLD))
-                        .appendSibling(new StringTextComponent(String.valueOf(guild.capacity())).applyTextStyles(TextFormatting.RED)),
+                new TranslationTextComponent("generic.guild_members",
+                        new StringTextComponent(String.valueOf(members.size())).applyTextStyles(TextFormatting.RED),
+                        new StringTextComponent(String.valueOf(guild.capacity())).applyTextStyles(TextFormatting.RED)
+                ).applyTextStyles(TextFormatting.GOLD),
                 false
         );
         // TODO: implement player presence
@@ -282,7 +281,7 @@ public class Commands {
                             .map(GuildMember::name)
                             .collect(Collectors.joining(", "));
             source.sendFeedback(
-                    new StringTextComponent(role + ": ").applyTextStyles(TextFormatting.GOLD)
+                    new TranslationTextComponent(roleTranslationKey(role), new StringTextComponent("")).applyTextStyles(TextFormatting.GOLD)
                             .appendSibling(new StringTextComponent(players).applyTextStyles(TextFormatting.WHITE)),
                     false
             );
@@ -292,16 +291,17 @@ public class Commands {
         sendRole.accept("Member");
         source.sendFeedback(new StringTextComponent(""), false);
         source.sendFeedback(
-                new StringTextComponent("公開: ").applyTextStyles(TextFormatting.GOLD)
-                        .appendSibling(new StringTextComponent(String.valueOf(guild.open())).applyTextStyles(guild.open() ? TextFormatting.GREEN : TextFormatting.RED)),
+                new TranslationTextComponent("generic.guild_open",
+                        new TranslationTextComponent(booleanTranslationKey(guild.open())).applyTextStyles(guild.open() ? TextFormatting.GREEN : TextFormatting.RED)
+                ).applyTextStyles(TextFormatting.GOLD),
                 false
         );
         source.sendFeedback(
-                new StringTextComponent("チャット形式: ").applyTextStyles(TextFormatting.GOLD)
+                new TranslationTextComponent("generic.guild_chat_format").applyTextStyles(TextFormatting.GOLD)
                         .appendSibling(new StringTextComponent(guild.format())
                                 .applyTextStyles(TextFormatting.WHITE)
                                 .applyTextStyle(style -> {
-                                    style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new StringTextComponent("クリックでコピー")));
+                                    style.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslationTextComponent("generic.copy_on_click")));
                                     style.setClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, guild.format()));
                                 })
                         ),
@@ -314,13 +314,13 @@ public class Commands {
         Guild guild = Mod.GUILDS.stream().filter(g -> g.name().equalsIgnoreCase(guildName)).findAny().orElse(null);
         if (guild == null) {
             if (source instanceof CommandSource) {
-                ((CommandSource) source).sendErrorMessage(new StringTextComponent("そんなぎるどないよ " + guildName));
+                ((CommandSource) source).sendErrorMessage(new TranslationTextComponent("generic.guild_not_found", guildName));
             }
             return 0;
         }
         Mod.client.selectGuild(guild.id());
         if (source instanceof CommandSource) {
-            ((CommandSource) source).sendFeedback(new StringTextComponent(guild.name() + " にちゃっとするようにしたよ(/cg <めっせーじ>でできるよ)"), false);
+            ((CommandSource) source).sendFeedback(new TranslationTextComponent("generic.guild_focus_set", guild.name()), false);
         }
         return 1;
     }
@@ -330,7 +330,7 @@ public class Commands {
             Guild guild = Mod.GUILDS.stream().filter(g -> g.name().equalsIgnoreCase(guildName)).findAny().orElse(null);
             if (guild == null) {
                 if (source instanceof CommandSource) {
-                    ((CommandSource) source).sendErrorMessage(new StringTextComponent("そんなぎるどないよ " + guildName));
+                    ((CommandSource) source).sendErrorMessage(new TranslationTextComponent("generic.guild_not_found", guildName));
                 }
                 return 0;
             }
@@ -339,5 +339,13 @@ public class Commands {
             Mod.client.sendMessageToGuild(null, message);
         }
         return 1;
+    }
+
+    private static String roleTranslationKey(String role) {
+        return "generic.guild_role." + role.toLowerCase(Locale.ROOT);
+    }
+
+    private static String booleanTranslationKey(boolean value) {
+        return "generic.boolean." + value;
     }
 }
