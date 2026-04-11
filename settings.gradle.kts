@@ -9,7 +9,6 @@ pluginManagement {
             name = "Fabric"
             url = uri("https://maven.fabricmc.net/")
         }
-        maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
     }
 }
 
@@ -26,5 +25,4 @@ include("fabric-1.19")
 include("fabric-1.18")
 include("fabric-1.17")
 include("fabric-1.16")
-// ForgeGradle does not support Gradle 9+ yet
-//include("forge-1.15")
+include("forge-1.15")

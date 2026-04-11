@@ -1,25 +1,29 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 buildscript {
     repositories {
         maven { url = 'https://maven.minecraftforge.net/' }
         maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
         mavenCentral()
     }
-    dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '6.+', changing: true
-        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
-    }
 }
+
+plugins {
+    id 'net.minecraftforge.gradle' version '[7.0.11,8.0)'
+    id 'net.minecraftforge.renamer' version '1.0.14'
+}
+
+apply plugin: 'java'
 apply plugin: 'net.minecraftforge.gradle'
 // Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
-apply plugin: 'org.spongepowered.mixin'
 
 //version = '0.3.0'
 //group = 'net.azisaba.interchatmod' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'InterChatMod'
+//archivesBaseName = 'InterChatMod'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 //Print out JVM information so that we know what version is running. Extreamly useful for people to know when helping you.
 println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 
@@ -33,60 +37,6 @@ minecraft {
     // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
-
-    // Default run configurations.
-    // These can be tweaked, removed, or duplicated as needed.
-    runs {
-        client {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        data {
-            workingDirectory project.file('run')
-
-            // Recommended logging data for a userdev environment
-            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
-            property 'forge.logging.console.level', 'debug'
-
-            args '--mod', 'examplemod', '--all', '--output', file('src/generated/resources/')
-
-            mods {
-                examplemod {
-                    source sourceSets.main
-                }
-            }
-        }
-    }
 }
 
 configurations {
@@ -94,11 +44,21 @@ configurations {
     implementation.extendsFrom shade
 }
 
+repositories {
+    minecraft.mavenizer(it)
+    maven fg.forgeMaven
+    maven fg.minecraftLibsMaven
+    maven {
+        url "https://repo.spongepowered.org/repository/maven-public/"
+    }
+    mavenCentral()
+}
+
 dependencies {
     // Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.15.2-31.2.57'
+    implementation minecraft.dependency('net.minecraftforge:forge:1.15.2-31.2.57')
 
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
@@ -122,7 +82,7 @@ dependencies {
     annotationProcessor 'com.google.guava:guava:32.1.3-jre'
     annotationProcessor 'org.ow2.asm:asm:9.6'
     annotationProcessor 'org.ow2.asm:asm-tree:9.6'
-    annotationProcessor 'org.spongepowered:mixin:0.8.5'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     implementation project(':common')
     shade project(':common')
     shade "net.kyori:adventure-api:$adventureVersion"
@@ -138,9 +98,18 @@ dependencies {
 
 }
 
-mixin {
-    add(sourceSets.main, 'mixins.interchatmod.refmap.json')
-    config 'mixins.interchatmod.json'
+//mixin {
+//    add(sourceSets.main, 'mixins.interchatmod.refmap.json')
+//    config 'mixins.interchatmod.json'
+//}
+
+renamer.enableMixinRefmaps {
+    config "mixins.interchatmod.json"
+}
+renamer.classes(tasks.named('shadowJar', ShadowJar)) {
+    archiveClassifier = 'srg'
+    // We need to use the generated mappings, which includes things generated by the annotation processor
+    mappings renamer.mixin.generatedMappings
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
@@ -160,23 +129,42 @@ jar {
 }
 
 shadowJar {
+    // TODO: dirty hack to make refmap work
+    dependsOn "jar"
+    from(zipTree(tasks.named("jar", org.gradle.jvm.tasks.Jar).get().archiveFile).matching {
+        include "main.refmap.json"
+    }).rename {
+        if (it == "main.refmap.json") {
+            "mixins.interchatmod.refmap.json"
+        } else {
+            it
+        }
+    }
+    // end of dirty hack
+    archiveBaseName.set('InterChatMod')
     archiveClassifier = ''
     configurations = [project.configurations.shade]
     relocate 'net.kyori', "${project.group}.lib.net.kyori"
     relocate 'org.slf4j', "${project.group}.lib.org.slf4j"
     mergeServiceFiles()
-    finalizedBy 'reobfShadowJar'
+    finalizedBy 'renameShadowJar'
+}
+
+renamer.mappings(minecraft.dependency.toSrg)
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
 assemble.dependsOn shadowJar
 
-reobf {
-    shadowJar {}
-}
+//reobf {
+//    shadowJar {}
+//}
 
 // Example configuration to allow publishing using the maven-publish task
 // This is the preferred method to reobfuscate your jar file
-jar.finalizedBy('reobfJar')
+//jar.finalizedBy('reobfJar')
 // However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
 //publish.dependsOn('reobfJar')
 

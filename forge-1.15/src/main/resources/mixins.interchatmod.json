@@ -1,5 +1,6 @@
 {
 	"required": true,
+	"minVersion": "0.8.2",
 	"refmap": "mixins.interchatmod.refmap.json",
 	"package": "net.azisaba.interchatmod.forge.mixin",
 	"compatibilityLevel": "JAVA_8",

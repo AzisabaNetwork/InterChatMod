@@ -1,7 +1,7 @@
 plugins {
     java
     `java-library`
-    id("com.gradleup.shadow") version "8.3.3"
+    id("com.gradleup.shadow") version "9.4.1"
 }
 
 allprojects {
@@ -18,7 +18,12 @@ allprojects {
         // mavenLocal()
         mavenCentral()
         maven { url = uri("https://libraries.minecraft.net/") }
-        maven { url = uri("https://repo.azisaba.net/repository/maven-public/") }
+        maven {
+            url = uri("https://repo.azisaba.net/repository/maven-public/")
+            content {
+                excludeGroup("org.spongepowered")
+            }
+        }
     }
 
     tasks {

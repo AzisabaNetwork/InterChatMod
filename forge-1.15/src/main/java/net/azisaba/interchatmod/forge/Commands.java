@@ -242,6 +242,7 @@ public class Commands {
                         .appendSibling(new StringTextComponent(String.valueOf(guild.capacity())).applyTextStyles(TextFormatting.RED)),
                 false
         );
+        // TODO: implement player presence
         /*
                 Consumer<String> sendRole = (role) -> {
             List<MutableText> players =
