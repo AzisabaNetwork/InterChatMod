@@ -3,7 +3,7 @@
 	"id": "interchatmod",
 	"version": "${version}",
 	"name": "InterChat",
-	"description": "Guild chat for client",
+	"description": "Cross-server chat mod",
 	"authors": [
 		"Azisaba Network"
 	],
