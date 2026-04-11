@@ -18,6 +18,10 @@ If you are not comfortable with this, don't use this mod or, you can override th
 
 Deletion of your message data can be requested by contacting us at our [Discord server](https://azisaba.dev).
 
+This mod currently has the following limitations:
+- English support is experimental. Client-side is fully translated, but server-side is not. For example, command responses will be in Japanese.
+- Creation of guilds is not supported yet. You can only create guilds through the Minecraft server. If you are using the default API host, you can create guilds by connecting to the `mc.azisaba.net` and typing `/guild create <name>`.
+
 ## Fabric
 
 ### 1.21.11 and up
