@@ -84,7 +84,7 @@ public class Mod implements ModInitializer {
     }
 
     public static String uploadImage(byte[] data) throws IOException, URISyntaxException {
-        String url = "https://" + Constants.DEFAULT_API_HOST + "/interchat/upload_image";
+        String url = "https://" + getEffectiveApiHost() + "/interchat/upload_image";
         HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + CONFIG.apiKey());
         connection.setDoOutput(true);
