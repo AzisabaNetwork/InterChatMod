@@ -18,8 +18,8 @@ plugins {
 
 include("common")
 include("fabric-1.21.11")
-include("fabric-1.21.8")
-include("fabric-1.21")
+//include("fabric-1.21.8")
+//include("fabric-1.21")
 include("fabric-1.20")
 include("fabric-1.19")
 include("fabric-1.18")
