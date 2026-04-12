@@ -1,11 +1,14 @@
 package net.azisaba.interchatmod.fabric;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.azisaba.interchatmod.common.model.Guild;
 import net.azisaba.interchatmod.common.model.GuildMember;
 import net.azisaba.interchatmod.common.util.Constants;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandSource;
 import net.minecraft.text.ClickEvent;
 import net.minecraft.text.HoverEvent;
@@ -14,6 +17,10 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
@@ -22,6 +29,7 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.arg
 import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
 
 public class Commands {
+    private static final Gson GSON = new Gson();
     public static final @NotNull Set<String> KNOWN_PLAYERS = new HashSet<>();
 
     public static LiteralArgumentBuilder<FabricClientCommandSource> builderGTell() {
@@ -124,7 +132,7 @@ public class Commands {
                 .then(literal("role")
                         .then(argument("member", StringArgumentType.word())
                                 .suggests((ctx, builder) -> {
-                                    var set = Mod.guildMembers.getOrDefault(Mod.client.getSelectedGuild(), Collections.emptySet());
+                                    Set<GuildMember> set = Mod.guildMembers.getOrDefault(Mod.client.getSelectedGuild(), Collections.emptySet());
                                     return CommandSource.suggestMatching(set.stream().map(GuildMember::name), builder);
                                 })
                                 .then(argument("role", StringArgumentType.word())
@@ -196,6 +204,11 @@ public class Commands {
                                             return 0;
                                         })
                                 )
+                        )
+                )
+                .then(literal("upload_image")
+                        .then(argument("uuid", StringArgumentType.string())
+                                .executes(ctx -> executeUploadImage(ctx.getSource(), StringArgumentType.getString(ctx, "uuid")))
                         )
                 )
                 ;
@@ -291,6 +304,31 @@ public class Commands {
         } else {
             Mod.client.sendMessageToGuild(null, message);
         }
+        return 1;
+    }
+
+    private static int executeUploadImage(FabricClientCommandSource source, String uuid) {
+        File image = Mod.images.get(UUID.fromString(uuid));
+        if (image == null) {
+            return 0;
+        }
+        source.sendFeedback(Text.translatable("generic.uploading").formatted(Formatting.GRAY));
+        Thread thread = new Thread(() -> {
+            try {
+                byte[] data = Files.readAllBytes(image.toPath());
+                JsonObject obj = GSON.fromJson(Mod.uploadImage(data), JsonObject.class);
+                if (!obj.has("uuid")) {
+                    MinecraftClient.getInstance().execute(() -> source.sendError(Text.translatable("generic.upload_image_failed", Text.literal(obj.toString()).formatted(Formatting.RED))));
+                    return;
+                }
+                String imageUuid = obj.get("uuid").getAsString();
+                Mod.client.sendMessageToGuild(null, "https://" + Mod.getEffectiveApiHost() + "/interchat/image?key=" + imageUuid);
+            } catch (IOException | URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        thread.setName("InterChat Upload Image Thread");
+        thread.start();
         return 1;
     }
 
