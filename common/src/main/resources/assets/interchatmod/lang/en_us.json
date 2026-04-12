@@ -30,5 +30,6 @@
   "generic.error_in_connection": "Error in WebSocket connection: %s",
   "generic.upload": "Upload",
   "generic.upload.tooltip": "Upload screenshot to the guild",
-  "generic.upload_image_failed": "Failed to upload image: %s"
+  "generic.upload_image_failed": "Failed to upload image: %s",
+  "generic.uploading": "Uploading..."
 }

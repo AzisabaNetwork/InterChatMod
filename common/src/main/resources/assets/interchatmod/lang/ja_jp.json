@@ -30,5 +30,6 @@
   "generic.error_in_connection": "WebSocket接続でエラーが発生しました: %s",
   "generic.upload": "アップロード",
   "generic.upload.tooltip": "スクリーンショットをギルドにアップロードする",
-  "generic.upload_image_failed": "画像のアップロードに失敗しました: %s"
+  "generic.upload_image_failed": "画像のアップロードに失敗しました: %s",
+  "generic.uploading": "アップロード中..."
 }

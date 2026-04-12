@@ -2,12 +2,12 @@ plugins {
     id("fabric-loom") version "1.14-SNAPSHOT"
 }
 
-java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
+java.toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 
-val minecraftVersion = "1.20.2"
-val yarnMappings = "1.20.2+build.4"
-val loaderVersion = "0.14.23"
-val fabricVersion = "0.90.0+1.20.2"
+val minecraftVersion = "1.20.6"
+val yarnMappings = "1.20.6+build.3"
+val loaderVersion = "0.19.1"
+val fabricVersion = "0.100.8+1.20.6"
 val archivesBaseName = "InterChatMod-${project.name}"
 val adventureVersion by project.properties
 
@@ -29,8 +29,8 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation("net.fabricmc.fabric-api:fabric-api:$fabricVersion")
 
-    modImplementation("io.wispforest:owo-lib:0.11.3+1.20.2")
-    annotationProcessor("io.wispforest:owo-lib:0.11.3+1.20.2")
+    modImplementation("io.wispforest:owo-lib:0.12.9+1.20.5")
+    annotationProcessor("io.wispforest:owo-lib:0.12.9+1.20.5")
 
     // Uncomment the following line to enable the deprecated Fabric API modules.
     // These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
@@ -96,10 +96,10 @@ java {
 }
 
 modrinth {
-    versionNumber.set("${project.version}+1.20.2-fabric")
+    versionNumber.set("${project.version}+1.20.6-fabric")
     uploadFile.set(tasks.remapJar)
     file.set { tasks.remapJar.get().outputs.files.singleFile }
-    gameVersions.addAll("1.20.2")
+    gameVersions.addAll("1.20.6")
     loaders.add("fabric")
     dependencies {
         required.project("fabric-api", "owo-lib")

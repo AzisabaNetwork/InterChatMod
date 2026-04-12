@@ -312,6 +312,7 @@ public class Commands {
         if (image == null) {
             return 0;
         }
+        source.sendFeedback(Text.translatable("generic.uploading").formatted(Formatting.GRAY));
         Thread thread = new Thread(() -> {
             try {
                 byte[] data = Files.readAllBytes(image.toPath());
