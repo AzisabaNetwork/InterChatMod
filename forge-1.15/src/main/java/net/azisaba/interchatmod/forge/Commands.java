@@ -1,5 +1,7 @@
 package net.azisaba.interchatmod.forge;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.mojang.brigadier.arguments.ArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -17,16 +19,18 @@ import net.minecraft.util.text.event.ClickEvent;
 import net.minecraft.util.text.event.HoverEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class Commands {
     public static final @NotNull Set<String> KNOWN_PLAYERS = new HashSet<>();
+    private static final Gson GSON = new Gson();
 
     public static LiteralArgumentBuilder<ISuggestionProvider> literal(String name) {
         return LiteralArgumentBuilder.literal(name);
@@ -211,6 +215,11 @@ public class Commands {
                                 )
                         )
                 )
+                .then(literal("upload_image")
+                        .then(argument("uuid", StringArgumentType.string())
+                                .executes(ctx -> executeUploadImage(ctx.getSource(), StringArgumentType.getString(ctx, "uuid")))
+                        )
+                )
                 ;
     }
 
@@ -338,6 +347,31 @@ public class Commands {
         } else {
             Mod.client.sendMessageToGuild(null, message);
         }
+        return 1;
+    }
+
+    private static int executeUploadImage(ISuggestionProvider source, String uuid) {
+        File image = Mod.images.get(UUID.fromString(uuid));
+        if (image == null) {
+            return 0;
+        }
+        ((CommandSource) source).sendFeedback(new TranslationTextComponent("generic.uploading").applyTextStyles(TextFormatting.GRAY), false);
+        Thread thread = new Thread(() -> {
+            try {
+                byte[] data = Files.readAllBytes(image.toPath());
+                JsonObject obj = GSON.fromJson(Mod.uploadImage(data), JsonObject.class);
+                if (!obj.has("uuid")) {
+                    Minecraft.getInstance().execute(() -> ((CommandSource) source).sendErrorMessage(new TranslationTextComponent("generic.upload_image_failed", new StringTextComponent(obj.toString()).applyTextStyles(TextFormatting.RED))));
+                    return;
+                }
+                String imageUuid = obj.get("uuid").getAsString();
+                Mod.client.sendMessageToGuild(null, "https://" + ModConfig.getEffectiveApiHost() + "/interchat/image?key=" + imageUuid);
+            } catch (IOException | URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        thread.setName("InterChat Upload Image Thread");
+        thread.start();
         return 1;
     }
 

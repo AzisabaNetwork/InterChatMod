@@ -21,9 +21,11 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -34,6 +36,7 @@ public class Mod {
     public static final Timer TIMER = new Timer(true);
     public static final Set<Guild> GUILDS = Collections.synchronizedSet(new HashSet<>());
     public static final Map<Long, Set<GuildMember>> guildMembers = new ConcurrentHashMap<>();
+    public static final Map<UUID, File> images = new ConcurrentHashMap<>();
     public static WebSocketChatClient client;
 
     public Mod() {
@@ -75,6 +78,17 @@ public class Mod {
         HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
         connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
         return ByteStreams.readString(connection.getInputStream(), StandardCharsets.UTF_8);
+    }
+
+    public static String uploadImage(byte[] data) throws IOException, URISyntaxException {
+        String url = "https://" + ModConfig.getEffectiveApiHost() + "/interchat/upload_image";
+        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
+        connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "image/png");
+        connection.getOutputStream().write(data);
+        return new String(ByteStreams.readFully(connection.getInputStream()), StandardCharsets.UTF_8);
     }
 
     public static void reconnect() {

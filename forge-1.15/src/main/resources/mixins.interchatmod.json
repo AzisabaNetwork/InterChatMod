@@ -1,15 +1,16 @@
 {
-	"required": true,
-	"minVersion": "0.8.2",
-	"refmap": "mixins.interchatmod.refmap.json",
-	"package": "net.azisaba.interchatmod.forge.mixin",
-	"compatibilityLevel": "JAVA_8",
-	"mixins": [
-        "MixinClientPlayNetHandler",
-		"MixinClientPlayerEntity",
-		"MixinMinecraft"
-	],
-	"injectors": {
-		"defaultRequire": 1
-	}
+  "required": true,
+  "minVersion": "0.8.2",
+  "refmap": "mixins.interchatmod.refmap.json",
+  "package": "net.azisaba.interchatmod.forge.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "MixinClientPlayerEntity",
+    "MixinClientPlayNetHandler",
+    "MixinMinecraft",
+    "MixinScreenshotUtils"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
