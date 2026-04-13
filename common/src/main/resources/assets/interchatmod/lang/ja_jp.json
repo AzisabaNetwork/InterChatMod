@@ -31,5 +31,6 @@
   "generic.upload": "アップロード",
   "generic.upload.tooltip": "スクリーンショットをギルドにアップロードする",
   "generic.upload_image_failed": "画像のアップロードに失敗しました: %s",
-  "generic.uploading": "アップロード中..."
+  "generic.uploading": "アップロード中...",
+  "generic.data_is_empty": "データが空です"
 }

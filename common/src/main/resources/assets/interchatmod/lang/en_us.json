@@ -31,5 +31,6 @@
   "generic.upload": "Upload",
   "generic.upload.tooltip": "Upload screenshot to the guild",
   "generic.upload_image_failed": "Failed to upload image: %s",
-  "generic.uploading": "Uploading..."
+  "generic.uploading": "Uploading...",
+  "generic.data_is_empty": "Data is empty"
 }

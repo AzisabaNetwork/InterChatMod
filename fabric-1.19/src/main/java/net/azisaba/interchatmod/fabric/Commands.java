@@ -6,7 +6,9 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.azisaba.interchatmod.common.model.Guild;
 import net.azisaba.interchatmod.common.model.GuildMember;
+import net.azisaba.interchatmod.common.util.ClipboardUtil;
 import net.azisaba.interchatmod.common.util.Constants;
+import net.azisaba.interchatmod.common.util.function.IOSupplier;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.command.CommandSource;
@@ -206,10 +208,11 @@ public class Commands {
                                 )
                         )
                 )
-                .then(literal("upload_image")
+                .then(literal("uploadimage")
                         .then(argument("uuid", StringArgumentType.string())
                                 .executes(ctx -> executeUploadImage(ctx.getSource(), StringArgumentType.getString(ctx, "uuid")))
                         )
+                        .executes(ctx -> executeUploadImage(ctx.getSource(), null))
                 )
                 ;
     }
@@ -307,18 +310,18 @@ public class Commands {
         return 1;
     }
 
-    private static int executeUploadImage(FabricClientCommandSource source, String uuid) {
-        File image = Mod.images.get(UUID.fromString(uuid));
-        if (image == null) {
-            return 0;
-        }
+    private static void uploadImage(FabricClientCommandSource source, IOSupplier<byte[]> dataSupplier) {
         source.sendFeedback(Text.translatable("generic.uploading").formatted(Formatting.GRAY));
         Thread thread = new Thread(() -> {
             try {
-                byte[] data = Files.readAllBytes(image.toPath());
+                byte[] data = dataSupplier.get();
+                if (data == null) {
+                    MinecraftClient.getInstance().execute(() -> source.sendError(Text.translatable("generic.upload_image_failed", Text.translatable("generic.data_is_empty")).formatted(Formatting.RED)));
+                    return;
+                }
                 JsonObject obj = GSON.fromJson(Mod.uploadImage(data), JsonObject.class);
                 if (!obj.has("uuid")) {
-                    MinecraftClient.getInstance().execute(() -> source.sendError(Text.translatable("generic.upload_image_failed", Text.literal(obj.toString()).formatted(Formatting.RED))));
+                    MinecraftClient.getInstance().execute(() -> source.sendError(Text.translatable("generic.upload_image_failed", Text.literal(obj.toString())).formatted(Formatting.RED)));
                     return;
                 }
                 String imageUuid = obj.get("uuid").getAsString();
@@ -329,6 +332,18 @@ public class Commands {
         });
         thread.setName("InterChat Upload Image Thread");
         thread.start();
+    }
+
+    private static int executeUploadImage(FabricClientCommandSource source, String uuid) {
+        if (uuid == null) {
+            uploadImage(source, ClipboardUtil::getImageFromClipboard);
+            return 1;
+        }
+        File image = Mod.images.get(UUID.fromString(uuid));
+        if (image == null) {
+            return 0;
+        }
+        uploadImage(source, () -> Files.readAllBytes(image.toPath()));
         return 1;
     }
 
