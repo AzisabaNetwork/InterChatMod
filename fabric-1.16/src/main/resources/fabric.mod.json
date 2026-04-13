@@ -24,7 +24,7 @@
 		"interchatmod.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.14",
+		"fabricloader": ">=0.13",
 		"fabric": ">=0.42",
 		"minecraft": ">=1.16",
 		"java": ">=8"
