@@ -13,7 +13,7 @@ allprojects {
     }
 
     group = "net.azisaba.interchatmod"
-    version = "0.7.1-alpha.2"
+    version = "0.8.0-alpha.1"
 
     repositories {
         // mavenLocal()
