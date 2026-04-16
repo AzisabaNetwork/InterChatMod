@@ -15,14 +15,13 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.io.File;
-import java.util.UUID;
 import java.util.function.Consumer;
 
 @Mixin(ScreenshotRecorder.class)
 public class MixinScreenshotRecorder {
     @Inject(at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"), method = "method_22691")
     private static void onSaveScreenshot(NativeImage nativeImage, File file, Consumer<Text> consumer, CallbackInfo ci) {
-        UUID uuid = UUID.randomUUID();
+        String id = java.util.UUID.randomUUID().toString();
         MutableText text = Text.empty();
         text.append("[↑");
         text.append(Text.translatable("generic.upload"));
@@ -30,8 +29,8 @@ public class MixinScreenshotRecorder {
         text.styled(style -> style
                 .withColor(Formatting.AQUA)
                 .withHoverEvent(new HoverEvent.ShowText(Text.translatable("generic.upload.tooltip")))
-                .withClickEvent(new ClickEvent.RunCommand("/cguild upload_image " + uuid)));
+                .withClickEvent(new ClickEvent.RunCommand("/cguild uploadimage " + id)));
         MinecraftClient.getInstance().execute(() -> consumer.accept(text));
-        Mod.images.put(uuid, file);
+        Mod.instance.getScreenshots().put(id, file);
     }
 }

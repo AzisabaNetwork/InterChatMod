@@ -14,13 +14,13 @@ import java.util.TimerTask;
 public class MixinMinecraftClient {
     @Inject(method = "setScreen", at = @At("HEAD"))
     public void onSetScreen(Screen screen, CallbackInfo ci) {
-        Mod.TIMER.schedule(new TimerTask() {
+        Mod.instance.getTimer().schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
-                    Mod.trySwitch();
+                    Mod.instance.trySwitch();
                 } catch (Exception e) {
-                    Mod.LOGGER.error("Failed to switch", e);
+                    Mod.instance.getLogger().error("Failed to switch", e);
                 }
             }
         }, 200);

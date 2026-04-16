@@ -44,6 +44,7 @@ dependencies {
     include("net.kyori:adventure-text-serializer-legacy:$adventureVersion")
     include("net.kyori:adventure-text-serializer-json:$adventureVersion")
     include("net.kyori:adventure-text-serializer-gson:$adventureVersion")
+    include("net.kyori:option:1.1.0")
     include("org.java-websocket:Java-WebSocket:1.5.4")
     include("de.marhali:json5-java:3.0.0")
 

@@ -24,11 +24,11 @@ public class MixinClientPlayNetworkHandler {
         }
         ci.cancel();
         try {
-            Mod.client.sendMessageToGuild(null, content);
+            Mod.instance.getWebSocketChatClient().sendMessageToGuild(null, content);
         } catch (WebsocketNotConnectedException e) {
             assert MinecraftClient.getInstance().player != null;
             MinecraftClient.getInstance().player.sendMessage(Text.translatable("generic.not_connected"));
-            Mod.reconnect();
+            Mod.instance.reconnect();
         }
     }
 

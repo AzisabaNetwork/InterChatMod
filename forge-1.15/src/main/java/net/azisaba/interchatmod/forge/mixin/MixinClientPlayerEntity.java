@@ -27,11 +27,11 @@ public class MixinClientPlayerEntity {
         }
         ci.cancel();
         try {
-            Mod.client.sendMessageToGuild(null, content);
+            Mod.instance.getWebSocketChatClient().sendMessageToGuild(null, content);
         } catch (WebsocketNotConnectedException e) {
             assert Minecraft.getInstance().player != null;
             Minecraft.getInstance().player.sendMessage(new TranslationTextComponent("generic.not_connected"));
-            Mod.reconnect();
+            Mod.instance.reconnect();
         }
     }
 

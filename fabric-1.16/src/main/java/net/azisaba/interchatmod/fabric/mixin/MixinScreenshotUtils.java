@@ -19,7 +19,7 @@ import java.util.function.Consumer;
 public class MixinScreenshotUtils {
     @Inject(at = @At(value = "INVOKE", target = "Ljava/util/function/Consumer;accept(Ljava/lang/Object;)V"), method = "method_1661")
     private static void onSaveScreenshot(NativeImage nativeImage, File file, Consumer<Text> consumer, CallbackInfo ci) {
-        UUID uuid = UUID.randomUUID();
+        String id = UUID.randomUUID().toString();
         MutableText text = new LiteralText("");
         text.append("[↑");
         text.append(new TranslatableText("generic.upload"));
@@ -27,8 +27,8 @@ public class MixinScreenshotUtils {
         text.styled(style -> style
                 .withColor(Formatting.AQUA)
                 .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new TranslatableText("generic.upload.tooltip")))
-                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cguild upload_image " + uuid)));
+                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/cguild uploadimage " + id)));
         MinecraftClient.getInstance().execute(() -> consumer.accept(text));
-        Mod.images.put(uuid, file);
+        Mod.instance.getScreenshots().put(id, file);
     }
 }

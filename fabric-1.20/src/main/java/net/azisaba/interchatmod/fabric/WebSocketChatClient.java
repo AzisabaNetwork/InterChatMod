@@ -3,22 +3,19 @@ package net.azisaba.interchatmod.fabric;
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
 import net.azisaba.interchatmod.common.AbstractWebSocketChatClient;
+import net.azisaba.interchatmod.common.InterChatMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.text.TextCodecs;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URI;
 import java.util.TimerTask;
 
 public class WebSocketChatClient extends AbstractWebSocketChatClient {
-    public WebSocketChatClient(URI uri) {
-        super(uri);
-    }
-
-    @Override
-    protected String getApiKey() {
-        return Mod.CONFIG.apiKey();
+    public WebSocketChatClient(@NotNull InterChatMod mod, @NotNull URI uri) {
+        super(mod, uri);
     }
 
     @Override
@@ -28,30 +25,30 @@ public class WebSocketChatClient extends AbstractWebSocketChatClient {
 
     @Override
     protected void trySwitch() {
-        Mod.trySwitch();
+        Mod.instance.trySwitch();
     }
 
     @Override
     protected void scheduleReconnect() {
-        Mod.TIMER.schedule(new TimerTask() {
+        Mod.instance.getTimer().schedule(new TimerTask() {
             @Override
             public void run() {
-                Mod.reconnect();
+                Mod.instance.reconnect();
             }
         }, 1000 * 5);
-        Mod.TIMER.schedule(new TimerTask() {
+        Mod.instance.getTimer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if (!Mod.client.isOpen()) {
-                    Mod.reconnect();
+                if (!Mod.instance.getWebSocketChatClient().isOpen()) {
+                    Mod.instance.reconnect();
                 }
             }
         }, 1000 * 15);
-        Mod.TIMER.schedule(new TimerTask() {
+        Mod.instance.getTimer().schedule(new TimerTask() {
             @Override
             public void run() {
-                if (!Mod.client.isOpen()) {
-                    Mod.reconnect();
+                if (!Mod.instance.getWebSocketChatClient().isOpen()) {
+                    Mod.instance.reconnect();
                 }
             }
         }, 1000 * 30);
@@ -67,15 +64,10 @@ public class WebSocketChatClient extends AbstractWebSocketChatClient {
 
     private void sendMessage(Text text) {
         if (text == null) return;
-        Mod.LOGGER.info("[WS] {}", text.getString());
+        Mod.instance.getLogger().info("[WS] {}", text.getString());
         if (Mod.CONFIG.hideEverything()) return;
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
         player.sendMessage(text);
-    }
-
-    @Override
-    public void onError(Exception ex) {
-        Mod.LOGGER.error("WebSocket error", ex);
     }
 }

@@ -13,7 +13,7 @@ allprojects {
     }
 
     group = "net.azisaba.interchatmod"
-    version = "0.8.0-alpha.1"
+    version = "0.8.0-alpha.2"
 
     repositories {
         // mavenLocal()
@@ -54,5 +54,6 @@ subprojects {
 
         projectId.set("interchat")
         versionType.set(getVersionType())
+        System.getenv("CHANGELOG")?.let { changelog.set(it) }
     }
 }

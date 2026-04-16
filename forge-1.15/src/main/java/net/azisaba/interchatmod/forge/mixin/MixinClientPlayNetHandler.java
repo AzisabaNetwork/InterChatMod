@@ -1,6 +1,8 @@
 package net.azisaba.interchatmod.forge.mixin;
 
 import com.mojang.brigadier.CommandDispatcher;
+import net.azisaba.interchatmod.common.command.CommandManager;
+import net.azisaba.interchatmod.forge.Mod;
 import net.azisaba.interchatmod.forge.Commands;
 import net.minecraft.client.network.play.ClientPlayNetHandler;
 import net.minecraft.command.ISuggestionProvider;
@@ -17,11 +19,9 @@ public class MixinClientPlayNetHandler {
 
     @Inject(method = "handleCommandList", at = @At("TAIL"))
     public void handleCommandList(SCommandListPacket packetIn, CallbackInfo ci) {
-        this.commandDispatcher.getRoot().addChild(Commands.builderGTell().build());
-        this.commandDispatcher.getRoot().addChild(Commands.builderGS().build());
-        this.commandDispatcher.getRoot().addChild(Commands.builderG().build());
-        this.commandDispatcher.getRoot().addChild(Commands.builderReconnectInterChat().build());
-        this.commandDispatcher.getRoot().addChild(Commands.builderGuild().build());
+        CommandManager.forEachCommand(command ->
+                this.commandDispatcher.getRoot().addChild(
+                        command.builder(Mod.instance).<ISuggestionProvider>getUnsafeLiteralBuilder().build()));
         this.commandDispatcher.getRoot().addChild(Commands.builderInterChatConfig().build());
     }
 }

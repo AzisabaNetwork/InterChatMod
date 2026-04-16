@@ -15,14 +15,13 @@ import java.util.logging.Level;
 public class MixinMinecraftClient {
     @Inject(method = "openScreen", at = @At("HEAD"))
     public void onSetScreen(Screen screen, CallbackInfo ci) {
-        Mod.TIMER.schedule(new TimerTask() {
+        Mod.instance.getTimer().schedule(new TimerTask() {
             @Override
             public void run() {
                 try {
-                    Mod.trySwitch();
+                    Mod.instance.trySwitch();
                 } catch (Exception e) {
-                    System.err.println("Failed to switch");
-                    e.printStackTrace();
+                    Mod.instance.getLogger().error("Failed to switch", e);
                 }
             }
         }, 200);

@@ -45,6 +45,7 @@ dependencies {
     include("net.kyori:adventure-text-serializer-legacy:$adventureVersion")
     include("net.kyori:adventure-text-serializer-json:$adventureVersion")
     include("net.kyori:adventure-text-serializer-gson:$adventureVersion")
+    include("net.kyori:option:1.1.0")
     include("org.java-websocket:Java-WebSocket:1.5.4")
     val includeResourcesInJar = configurations.create("includeResourcesInJar") {
         isCanBeResolved = true

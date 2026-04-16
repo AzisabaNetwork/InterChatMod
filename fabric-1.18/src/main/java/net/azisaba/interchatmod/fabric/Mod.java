@@ -1,127 +1,32 @@
 package net.azisaba.interchatmod.fabric;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.terraformersmc.modmenu.api.ModMenuApi;
-import net.azisaba.interchatmod.common.model.Guild;
-import net.azisaba.interchatmod.common.model.GuildMember;
-import net.azisaba.interchatmod.common.util.ByteStreams;
+import net.azisaba.interchatmod.common.AbstractWebSocketChatClient;
+import net.azisaba.interchatmod.common.InterChatMod;
+import net.azisaba.interchatmod.common.command.CommandManager;
+import net.azisaba.interchatmod.common.config.ModConfigAccessor;
+import net.azisaba.interchatmod.common.entity.Actor;
+import net.azisaba.interchatmod.fabric.entity.FabricClientActor;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.fabricmc.fabric.api.client.command.v1.FabricClientCommandSource;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ServerInfo;
 import net.minecraft.server.integrated.IntegratedServer;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class Mod implements ModInitializer, ModMenuApi {
-    public static final Logger LOGGER = LoggerFactory.getLogger("InterChatMod");
-    public static final Timer TIMER = new Timer(true);
-    public static final Set<Guild> GUILDS = Collections.synchronizedSet(new HashSet<>());
-    public static final Map<Long, Set<GuildMember>> guildMembers = new ConcurrentHashMap<>();
-    public static final Map<UUID, File> images = new ConcurrentHashMap<>();
-    public static WebSocketChatClient client;
+public class Mod extends InterChatMod implements ModInitializer, ModMenuApi {
+    public static Mod instance;
 
     @Override
     public void onInitialize() {
-        ClientCommandManager.DISPATCHER.register(Commands.builderGTell());
-        ClientCommandManager.DISPATCHER.register(Commands.builderGS());
-        ClientCommandManager.DISPATCHER.register(Commands.builderG());
-        ClientCommandManager.DISPATCHER.register(Commands.builderReconnectInterChat());
-        ClientCommandManager.DISPATCHER.register(Commands.builderGuild());
-
+        instance = this;
         ModConfig.load();
-
-        TIMER.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (ModConfig.apiKey.isEmpty()) return;
-                try {
-                    Gson gson = new Gson();
-                    JsonArray arr = gson.fromJson(makeRequest("interchat/guilds/list"), JsonArray.class);
-                    Set<Guild> localGuilds = getGuildsFromArray(arr);
-                    GUILDS.clear();
-                    GUILDS.addAll(localGuilds);
-                    for (Guild guild : localGuilds) {
-                        JsonArray membersArray = gson.fromJson(makeRequest("interchat/guilds/" + guild.id() + "/members"), JsonArray.class);
-                        guildMembers.put(guild.id(), GuildMember.getGuildMembersFromArray(membersArray));
-                    }
-                    for (Set<GuildMember> memberSet : guildMembers.values()) {
-                        for (GuildMember member : memberSet) {
-                            Commands.KNOWN_PLAYERS.add(member.name());
-                        }
-                    }
-                } catch (Exception e) {
-                    LOGGER.warn("Failed to fetch guild list", e);
-                }
-            }
-        }, 1000 * 30, 1000 * 30);
-
-        reconnect();
-    }
-
-    private static @NotNull String makeRequest(String path) throws IOException {
-        String url = "https://" + ModConfig.getEffectiveApiHost() + "/" + path;
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
-        return ByteStreams.readString(connection.getInputStream(), StandardCharsets.UTF_8);
-    }
-
-    public static String uploadImage(byte[] data) throws IOException, URISyntaxException {
-        String url = "https://" + ModConfig.getEffectiveApiHost() + "/interchat/upload_image";
-        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
-        connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "image/png");
-        connection.getOutputStream().write(data);
-        return new String(connection.getInputStream().readAllBytes(), StandardCharsets.UTF_8);
-    }
-
-    public static void reconnect() {
-        try {
-            if (client != null) {
-                client.close();
-            }
-            LOGGER.info("Attempting to connect to the server");
-            URI uri = new URI("wss://" + ModConfig.getEffectiveApiHost() + "/interchat/stream?server=dummy");
-            client = new WebSocketChatClient(uri);
-            client.connectBlocking();
-        } catch (Exception e) {
-            LOGGER.error("Failed to establish WebSocket session", e);
-        }
-    }
-
-    @NotNull
-    private static Set<Guild> getGuildsFromArray(JsonArray arr) {
-        Set<Guild> localGuilds = new HashSet<>();
-        for (JsonElement element : arr) {
-            JsonObject obj = element.getAsJsonObject();
-            localGuilds.add(
-                    new Guild(
-                            obj.get("id").getAsLong(),
-                            obj.get("name").getAsString(),
-                            obj.get("format").getAsString(),
-                            obj.get("capacity").getAsInt(),
-                            obj.get("open").getAsBoolean(),
-                            obj.get("deleted").getAsBoolean()
-                    )
-            );
-        }
-        return localGuilds;
+        initialize();
+        CommandManager.forEachCommand(command ->
+                ClientCommandManager.DISPATCHER.register(command.builder(this).getUnsafeLiteralBuilder()));
     }
 
     public static boolean isInAzisaba() {
@@ -130,7 +35,7 @@ public class Mod implements ModInitializer, ModMenuApi {
         return serverInfo.address.endsWith(".azisaba.net") || serverInfo.address.equals("azisaba.net");
     }
 
-    public static void trySwitch() {
+    public void trySwitch() {
         if (ModConfig.apiKey.isEmpty()) return;
         if (client == null) return;
         ServerInfo serverData = MinecraftClient.getInstance().getCurrentServerEntry();
@@ -141,5 +46,25 @@ public class Mod implements ModInitializer, ModMenuApi {
         if (singleServer != null) {
             client.switchServer(singleServer.getSaveProperties().getLevelName());
         }
+    }
+
+    @Override
+    public @NotNull ModConfigAccessor getConfig() {
+        return ModConfigAccessorImpl.INSTANCE;
+    }
+
+    @Override
+    public @NotNull Actor adaptActor(@NotNull Object actor) {
+        return new FabricClientActor((FabricClientCommandSource) actor);
+    }
+
+    @Override
+    public void execute(@NotNull Runnable runnable) {
+        MinecraftClient.getInstance().execute(runnable);
+    }
+
+    @Override
+    public @NotNull AbstractWebSocketChatClient createWebSocketChatClient(@NotNull URI uri) {
+        return new WebSocketChatClient(this, uri);
     }
 }

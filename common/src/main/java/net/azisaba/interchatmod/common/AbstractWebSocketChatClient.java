@@ -16,14 +16,16 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URI;
 
 public abstract class AbstractWebSocketChatClient extends WebSocketClient {
+    protected final InterChatMod mod;
     protected final LegacyComponentSerializer legacyComponentSerializer =
             LegacyComponentSerializer.builder().extractUrls().character('§').build();
     protected final Gson gson = new Gson();
     private long openAt;
     private long selectedGuild = -1;
 
-    public AbstractWebSocketChatClient(URI uri) {
+    public AbstractWebSocketChatClient(@NotNull InterChatMod mod, @NotNull URI uri) {
         super(uri);
+        this.mod = mod;
     }
 
     protected final void sendMessage(String message) {
@@ -38,8 +40,6 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
         throw new RuntimeException("Implementation must override sendJsonMessage or sendMessage(Component) method");
     }
 
-    protected abstract String getApiKey();
-
     protected abstract boolean isInAzisaba();
 
     protected abstract void trySwitch();
@@ -49,7 +49,7 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         openAt = System.currentTimeMillis();
-        auth(getApiKey());
+        auth(mod.getConfig().getApiKey());
         trySwitch();
         sendMessage(Component.translatable("generic.connected"));
     }
@@ -90,8 +90,8 @@ public abstract class AbstractWebSocketChatClient extends WebSocketClient {
 
     @Override
     public void onError(Exception ex) {
+        mod.getLogger().error("WebSocket error", ex);
         sendMessage(Component.translatable("generic.error_in_connection", Component.text(ex.getMessage())).color(NamedTextColor.RED));
-        ex.printStackTrace();
     }
 
     public long getSelectedGuild() {

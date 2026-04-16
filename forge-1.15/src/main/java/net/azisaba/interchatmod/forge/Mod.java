@@ -1,16 +1,15 @@
 package net.azisaba.interchatmod.forge;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import net.azisaba.interchatmod.common.model.Guild;
-import net.azisaba.interchatmod.common.model.GuildMember;
-import net.azisaba.interchatmod.common.util.ByteStreams;
+import net.azisaba.interchatmod.common.AbstractWebSocketChatClient;
+import net.azisaba.interchatmod.common.InterChatMod;
+import net.azisaba.interchatmod.common.config.ModConfigAccessor;
+import net.azisaba.interchatmod.common.entity.Actor;
+import net.azisaba.interchatmod.forge.entity.ForgeClientActor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.command.CommandSource;
 import net.minecraft.server.integrated.IntegratedServer;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -19,112 +18,17 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import java.io.File;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @net.minecraftforge.fml.common.Mod("interchatmod")
-public class Mod {
-    public static final Timer TIMER = new Timer(true);
-    public static final Set<Guild> GUILDS = Collections.synchronizedSet(new HashSet<>());
-    public static final Map<Long, Set<GuildMember>> guildMembers = new ConcurrentHashMap<>();
-    public static final Map<UUID, File> images = new ConcurrentHashMap<>();
-    public static WebSocketChatClient client;
+public class Mod extends InterChatMod {
+    public static Mod instance;
 
     public Mod() {
+        instance = this;
         ModConfig.load();
-
         MinecraftForge.EVENT_BUS.register(this);
-
-        TIMER.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (ModConfig.apiKey.isEmpty()) return;
-                try {
-                    Gson gson = new Gson();
-                    JsonArray arr = gson.fromJson(makeRequest("interchat/guilds/list"), JsonArray.class);
-                    Set<Guild> localGuilds = getGuildsFromArray(arr);
-                    GUILDS.clear();
-                    GUILDS.addAll(localGuilds);
-                    for (Guild guild : localGuilds) {
-                        JsonArray membersArray = gson.fromJson(makeRequest("interchat/guilds/" + guild.id() + "/members"), JsonArray.class);
-                        guildMembers.put(guild.id(), GuildMember.getGuildMembersFromArray(membersArray));
-                    }
-                    for (Set<GuildMember> memberSet : guildMembers.values()) {
-                        for (GuildMember member : memberSet) {
-                            Commands.KNOWN_PLAYERS.add(member.name());
-                        }
-                    }
-                } catch (Exception e) {
-                    System.err.println("Failed to fetch guild list");
-                    e.printStackTrace();
-                }
-            }
-        }, 1000 * 30, 1000 * 30);
-
-        reconnect();
-    }
-
-    private static @NotNull String makeRequest(String path) throws IOException {
-        String url = "https://" + ModConfig.getEffectiveApiHost() + "/" + path;
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
-        return ByteStreams.readString(connection.getInputStream(), StandardCharsets.UTF_8);
-    }
-
-    public static String uploadImage(byte[] data) throws IOException, URISyntaxException {
-        String url = "https://" + ModConfig.getEffectiveApiHost() + "/interchat/upload_image";
-        HttpURLConnection connection = (HttpURLConnection) new URI(url).toURL().openConnection();
-        connection.addRequestProperty("Authorization", "Bearer " + ModConfig.apiKey);
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "image/png");
-        connection.getOutputStream().write(data);
-        return new String(ByteStreams.readFully(connection.getInputStream()), StandardCharsets.UTF_8);
-    }
-
-    public static void reconnect() {
-        try {
-            if (client != null) {
-                client.close();
-            }
-            System.out.println("Attempting to connect to the server");
-            // it has to be insecure url, java 8 does not have required ssl certificate,
-            // and we had to disable Automatic HTTPS Rewrites on Cloudflare settings :<
-            URI uri = new URI("ws://" + ModConfig.getEffectiveApiHost() + "/interchat/stream?server=dummy");
-            client = new WebSocketChatClient(uri);
-            client.connectBlocking();
-        } catch (Exception e) {
-            System.err.println("Failed to establish WebSocket session");
-            e.printStackTrace();
-        }
-    }
-
-    @NotNull
-    private static Set<Guild> getGuildsFromArray(JsonArray arr) {
-        Set<Guild> localGuilds = new HashSet<>();
-        for (JsonElement element : arr) {
-            JsonObject obj = element.getAsJsonObject();
-            localGuilds.add(
-                    new Guild(
-                            obj.get("id").getAsLong(),
-                            obj.get("name").getAsString(),
-                            obj.get("format").getAsString(),
-                            obj.get("capacity").getAsInt(),
-                            obj.get("open").getAsBoolean(),
-                            obj.get("deleted").getAsBoolean()
-                    )
-            );
-        }
-        return localGuilds;
+        initialize();
     }
 
     public static boolean isInAzisaba() {
@@ -133,7 +37,7 @@ public class Mod {
         return serverData.serverIP.endsWith(".azisaba.net") || serverData.serverIP.equals("azisaba.net");
     }
 
-    public static void trySwitch() {
+    public void trySwitch() {
         if (ModConfig.apiKey.isEmpty()) return;
         if (client == null) return;
         ServerData serverData = Minecraft.getInstance().getCurrentServerData();
@@ -144,6 +48,31 @@ public class Mod {
         if (singleServer != null) {
             client.switchServer(singleServer.getActiveAnvilConverter().getName());
         }
+    }
+
+    @Override
+    public @NotNull ModConfigAccessor getConfig() {
+        return ModConfigAccessorImpl.INSTANCE;
+    }
+
+    @Override
+    public @NotNull Actor adaptActor(@NotNull Object actor) {
+        return new ForgeClientActor((CommandSource) actor);
+    }
+
+    @Override
+    public void execute(@NotNull Runnable runnable) {
+        Minecraft.getInstance().enqueue(runnable);
+    }
+
+    @Override
+    public @NotNull AbstractWebSocketChatClient createWebSocketChatClient(@NotNull URI uri) {
+        return new WebSocketChatClient(this, uri);
+    }
+
+    @Override
+    public boolean supportsSecureConnection() {
+        return false;
     }
 
     @SubscribeEvent

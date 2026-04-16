@@ -67,7 +67,7 @@ public final class ModConfig {
                 .setTitle(Text.translatable("text.config.interchat-config.title"))
                 .setSavingRunnable(() -> {
                     save();
-                    Mod.reconnect();
+                    Mod.instance.reconnect();
                 });
         ConfigEntryBuilder entryBuilder = builder.entryBuilder();
         builder.getOrCreateCategory(Text.translatable("text.config.interchat-config.category.general"))
