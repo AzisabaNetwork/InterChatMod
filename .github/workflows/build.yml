@@ -1,4 +1,4 @@
-name: Deploy to Modrinth
+name: Build
 
 on: [pull_request, push, workflow_dispatch]
 permissions:
